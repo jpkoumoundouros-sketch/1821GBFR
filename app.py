@@ -1,154 +1,208 @@
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import zipfile
+from pathlib import Path
 
-# --- ΡΥΘΜΙΣΕΙΣ ΣΕΛΙΔΑΣ ---
-st.set_page_config(page_title="Thesis Dashboard - Greek Revolution", page_icon="📈", layout="wide")
+st.set_page_config(
+    page_title="Greek Revolution Press Dashboard",
+    page_icon="🗞️",
+    layout="wide"
+)
 
-# --- ΣΥΝΑΡΤΗΣΕΙΣ ΦΟΡΤΩΣΗΣ ΔΕΔΟΜΕΝΩΝ ---
-@st.cache_data
-def load_main_data():
-    try:
-        # Άνοιγμα του αρχείου ZIP για να δούμε τι έχει μέσα
-        with zipfile.ZipFile("THESIS_WITH_ORIENTATION.csv.zip", 'r') as z:
-            # Βρίσκουμε το όνομα του ΠΡΑΓΜΑΤΙΚΟΥ αρχείου, αγνοώντας τα κρυφά του Mac
-            real_file_name = [name for name in z.namelist() if not name.startswith('__MACOSX') and not name.startswith('._')][0]
-            
-            # Διαβάζουμε μόνο αυτό το αρχείο μέσα από το ZIP
-            with z.open(real_file_name) as f:
-                df = pd.read_csv(f, low_memory=False, encoding='utf-8', on_bad_lines='skip')
-                
-        # Καθαρισμός στηλών
-        df.columns = df.columns.str.lower().str.strip()
-        if 'date' in df.columns:
-            df['date'] = pd.to_datetime(df['date'], errors='coerce')
-        return df
-    except Exception as e:
-        st.error(f"Σφάλμα φόρτωσης Δεδομένων Διατριβής: {e}")
+DATA_ZIP = Path("THESIS_WITH_ORIENTATION.csv.zip")
+CSV_NAME = "THESIS_WITH_ORIENTATION.csv"
+NETWORK_CSV = Path("Palladio_Network_Data.csv")
+
+
+@st.cache_data(show_spinner=False)
+def load_data() -> pd.DataFrame:
+    if not DATA_ZIP.exists():
+        st.error(f"Δεν βρέθηκε το αρχείο: {DATA_ZIP}")
         return pd.DataFrame()
 
-@st.cache_data
-def load_network_data():
-    try:
-        df = pd.read_csv("Palladio_Network_Data.csv")
-        df.columns = df.columns.str.lower().str.strip() 
-        if 'source_latlon' in df.columns:
-            df[['source_lat', 'source_lon']] = df['source_latlon'].str.split(',', expand=True).astype(float)
-            df[['target_lat', 'target_lon']] = df['target_latlon'].str.split(',', expand=True).astype(float)
-        return df
-    except Exception as e:
-        st.error(f"Σφάλμα φόρτωσης Palladio: {e}")
+    with zipfile.ZipFile(DATA_ZIP) as zf:
+        with zf.open(CSV_NAME) as f:
+            df = pd.read_csv(f, sep=";", low_memory=False)
+
+    df.columns = df.columns.str.lower().str.strip()
+
+    # Date normalization
+    if "date" in df.columns:
+        df["date"] = pd.to_datetime(df["date"], errors="coerce")
+
+    # Text cleanup
+    for col in ["country", "ai_topic", "ai_stance", "newspaper_title", "publication_place", "political_orientation", "news_origin_norm"]:
+        if col in df.columns:
+            df[col] = df[col].astype(str).replace("nan", pd.NA).str.strip()
+
+    if "year" not in df.columns and "date" in df.columns:
+        df["year"] = df["date"].dt.year
+
+    return df
+
+
+@st.cache_data(show_spinner=False)
+def load_network() -> pd.DataFrame:
+    if not NETWORK_CSV.exists():
         return pd.DataFrame()
 
-# Φόρτωση δεδομένων
-df_main = load_main_data()
-df_network = load_network_data()
+    try:
+        net = pd.read_csv(NETWORK_CSV)
+        net.columns = net.columns.str.lower().str.strip()
+        if "source_latlon" in net.columns and "target_latlon" in net.columns:
+            net[["source_lat", "source_lon"]] = net["source_latlon"].str.split(",", expand=True)
+            net[["target_lat", "target_lon"]] = net["target_latlon"].str.split(",", expand=True)
+            for col in ["source_lat", "source_lon", "target_lat", "target_lon"]:
+                net[col] = pd.to_numeric(net[col], errors="coerce")
+        return net
+    except Exception as e:
+        st.warning(f"Το network file δεν φορτώθηκε: {e}")
+        return pd.DataFrame()
 
-# --- ΕΠΙΚΕΦΑΛΙΔΑ ---
+
+df = load_data()
+df_network = load_network()
+
 st.title("🏛️ Ψηφιακό Παράρτημα Διδακτορικής Διατριβής")
-st.markdown("### Ανάλυση του Ευρωπαϊκού Τύπου κατά την Ελληνική Επανάσταση (1821-1829)")
+st.caption("Ευρωπαϊκός Τύπος και Ελληνική Επανάσταση, 1821–1832")
+
+if df.empty:
+    st.stop()
+
+# Sidebar filters
+st.sidebar.header("Φίλτρα")
+years = sorted([int(y) for y in df["year"].dropna().unique()]) if "year" in df.columns else []
+countries = sorted(df["country"].dropna().unique().tolist()) if "country" in df.columns else []
+topics = sorted(df["ai_topic"].dropna().unique().tolist()) if "ai_topic" in df.columns else []
+stances = sorted(df["ai_stance"].dropna().unique().tolist()) if "ai_stance" in df.columns else []
+orientations = sorted(df["political_orientation"].dropna().unique().tolist()) if "political_orientation" in df.columns else []
+
+selected_years = st.sidebar.multiselect("Έτος", years, default=years)
+selected_countries = st.sidebar.multiselect("Χώρα", countries, default=countries)
+selected_topics = st.sidebar.multiselect("Θέμα", topics, default=topics)
+selected_stances = st.sidebar.multiselect("Στάση", stances, default=stances)
+selected_orientations = st.sidebar.multiselect("Political orientation", orientations, default=orientations)
+
+filtered = df.copy()
+if selected_years and "year" in filtered.columns:
+    filtered = filtered[filtered["year"].isin(selected_years)]
+if selected_countries and "country" in filtered.columns:
+    filtered = filtered[filtered["country"].isin(selected_countries)]
+if selected_topics and "ai_topic" in filtered.columns:
+    filtered = filtered[filtered["ai_topic"].isin(selected_topics)]
+if selected_stances and "ai_stance" in filtered.columns:
+    filtered = filtered[filtered["ai_stance"].isin(selected_stances)]
+if selected_orientations and "political_orientation" in filtered.columns:
+    filtered = filtered[filtered["political_orientation"].isin(selected_orientations)]
+
+# Metrics
+m1, m2, m3, m4 = st.columns(4)
+m1.metric("Συνολικά άρθρα", f"{len(filtered):,}")
+m2.metric("Τίτλοι εφημερίδων", f"{filtered['newspaper_title'].nunique():,}" if "newspaper_title" in filtered.columns else "—")
+m3.metric("Χώρες", f"{filtered['country'].nunique():,}" if "country" in filtered.columns else "—")
+m4.metric("Origins", f"{filtered['news_origin_norm'].dropna().nunique():,}" if "news_origin_norm" in filtered.columns else "—")
+
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Επισκόπηση", "🧭 Θεματική/Στάση", "📰 Explorer", "🌍 Network"])
+
+with tab1:
+    c1, c2 = st.columns(2)
+
+    if "year" in filtered.columns:
+        yearly = filtered.dropna(subset=["year"]).groupby(["year", "country"], dropna=False).size().reset_index(name="count")
+        fig_year = px.bar(
+            yearly,
+            x="year",
+            y="count",
+            color="country" if "country" in yearly.columns else None,
+            barmode="group",
+            title="Αρθρογραφία ανά έτος"
+        )
+        c1.plotly_chart(fig_year, use_container_width=True)
+
+    if "country" in filtered.columns:
+        country_counts = filtered["country"].value_counts(dropna=False).reset_index()
+        country_counts.columns = ["country", "count"]
+        fig_country = px.pie(country_counts, names="country", values="count", title="Κατανομή ανά χώρα")
+        c2.plotly_chart(fig_country, use_container_width=True)
+
+with tab2:
+    c1, c2 = st.columns(2)
+
+    if "ai_topic" in filtered.columns:
+        topic_counts = filtered["ai_topic"].dropna().value_counts().reset_index()
+        topic_counts.columns = ["topic", "count"]
+        fig_topic = px.bar(topic_counts, x="count", y="topic", orientation="h", title="Θεματικές κατηγορίες")
+        c1.plotly_chart(fig_topic, use_container_width=True)
+
+    if "ai_stance" in filtered.columns:
+        stance_counts = filtered["ai_stance"].dropna().value_counts().reset_index()
+        stance_counts.columns = ["stance", "count"]
+        fig_stance = px.bar(stance_counts, x="stance", y="count", title="Κατανομή στάσης")
+        c2.plotly_chart(fig_stance, use_container_width=True)
+
+    if "political_orientation" in filtered.columns and "ai_stance" in filtered.columns:
+        cross = (
+            filtered.dropna(subset=["political_orientation", "ai_stance"])
+            .groupby(["political_orientation", "ai_stance"])
+            .size()
+            .reset_index(name="count")
+        )
+        if not cross.empty:
+            fig_cross = px.bar(
+                cross,
+                x="political_orientation",
+                y="count",
+                color="ai_stance",
+                barmode="group",
+                title="Political orientation × στάση"
+            )
+            st.plotly_chart(fig_cross, use_container_width=True)
+
+with tab3:
+    show_cols = [c for c in [
+        "newspaper_title", "date", "country", "publication_place",
+        "ai_topic", "ai_stance", "political_orientation", "news_origin_norm",
+        "content", "summary_el", "source_url"
+    ] if c in filtered.columns]
+
+    st.dataframe(filtered[show_cols].head(200), use_container_width=True, height=500)
+
+    if "content" in filtered.columns:
+        choices = filtered.index.tolist()[:500]
+        if choices:
+            idx = st.selectbox("Διάλεξε εγγραφή για ανάγνωση", choices)
+            row = filtered.loc[idx]
+            st.markdown(f"**Εφημερίδα:** {row.get('newspaper_title', '—')}")
+            st.markdown(f"**Ημερομηνία:** {row.get('date', '—')}")
+            st.markdown(f"**Θέμα:** {row.get('ai_topic', '—')}  |  **Στάση:** {row.get('ai_stance', '—')}")
+            st.markdown(f"**Political orientation:** {row.get('political_orientation', '—')}")
+            st.markdown("**Απόσπασμα:**")
+            st.write(row.get("content", "—"))
+            if pd.notna(row.get("summary_el", None)):
+                st.markdown("**Σύνοψη (EL):**")
+                st.write(row.get("summary_el"))
+
+with tab4:
+    if df_network.empty:
+        st.info("Δεν βρέθηκε `Palladio_Network_Data.csv`. Μπορούμε να ανεβάσουμε πρώτα το MVP χωρίς network view.")
+    else:
+        needed = {"source_lat", "source_lon", "target_lat", "target_lon"}
+        if needed.issubset(df_network.columns):
+            net = df_network.dropna(subset=list(needed)).copy()
+
+            fig = px.line_geo(
+                net,
+                lat="source_lat",
+                lon="source_lon",
+                hover_name="source_label" if "source_label" in net.columns else None
+            )
+            # Simpler fallback note
+            st.dataframe(net.head(100), use_container_width=True)
+            st.caption("Για production network map προτείνεται ξεχωριστή βελτιστοποίηση του Palladio/network dataset.")
+        else:
+            st.warning("Το network file υπάρχει αλλά λείπουν οι απαραίτητες στήλες lat/lon.")
+
 st.divider()
-
-# --- ΚΑΡΤΕΛΕΣ (TABS) ---
-tab_stats, tab_network, tab_archive = st.tabs([
-    "📊 Στατιστικά Διατριβής", 
-    "🌍 Γεωχωρική Ανάλυση (Media Lag)", 
-    "🔍 Ψηφιακό Αρχείο"
-])
-
-# ==========================================
-# ΚΑΡΤΕΛΑ 1: ΣΤΑΤΙΣΤΙΚΑ ΟΛΗΣ ΤΗΣ ΔΙΑΤΡΙΒΗΣ
-# ==========================================
-with tab_stats:
-    if not df_main.empty:
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Συνολικά Άρθρα", len(df_main))
-        m2.metric("Εφημερίδες", df_main['newspaper_title'].nunique() if 'newspaper_title' in df_main.columns else "N/A")
-        m3.metric("Χώρες", df_main['country'].nunique() if 'country' in df_main.columns else "N/A")
-        m4.metric("Απευθείας Σχετικά", len(df_main[df_main['ai_relevance'] == 'directly_relevant']) if 'ai_relevance' in df_main.columns else "N/A")
-        
-        c1, c2 = st.columns(2)
-        with c1:
-            st.subheader("📅 Χρονική Κατανομή")
-            if 'date' in df_main.columns:
-                df_main['year'] = df_main['date'].dt.year
-                fig_year = px.histogram(df_main.dropna(subset=['year']), x="year", color="country" if 'country' in df_main.columns else None, barmode="group")
-                st.plotly_chart(fig_year, use_container_width=True)
-                
-        with c2:
-            st.subheader("🏛️ Μερίδιο ανά Χώρα")
-            if 'country' in df_main.columns:
-                fig_pie = px.pie(df_main, names='country', hole=0.4)
-                st.plotly_chart(fig_pie, use_container_width=True)
-
-        st.divider()
-        
-        c3, c4 = st.columns(2)
-        with c3:
-            st.subheader("⚖️ Πολιτική Στάση (AI Stance)")
-            if 'ai_stance' in df_main.columns:
-                fig_stance = px.bar(df_main['ai_stance'].value_counts().reset_index(), x='ai_stance', y='count', color='ai_stance')
-                st.plotly_chart(fig_stance, use_container_width=True)
-        
-        with c4:
-            st.subheader("🏷️ Θεματολογία (AI Topics)")
-            if 'ai_topic' in df_main.columns:
-                df_topics = df_main.dropna(subset=['ai_topic'])
-                if not df_topics.empty:
-                    fig_topic = px.treemap(df_topics, path=['ai_topic'], color='ai_topic')
-                    st.plotly_chart(fig_topic, use_container_width=True)
-    else:
-        st.warning("Τα δεδομένα δεν φορτώθηκαν σωστά.")
-
-# ==========================================
-# ΚΑΡΤΕΛΑ 2: ΓΕΩΧΩΡΙΚΗ ΑΝΑΛΥΣΗ
-# ==========================================
-with tab_network:
-    if not df_network.empty and 'target_label' in df_network.columns:
-        st.header("Χαρτογράφηση Δικτύου & Media Lag")
-        
-        avg_lon = df_network[df_network['target_label'].str.contains('London', case=False, na=False)]['media_lag'].mean()
-        avg_par = df_network[df_network['target_label'].str.contains('Paris', case=False, na=False)]['media_lag'].mean()
-        
-        col_l, col_p = st.columns(2)
-        col_l.metric("Μέσος Χρόνος Λονδίνο", f"{avg_lon:.1f} ημέρες" if pd.notnull(avg_lon) else "N/A")
-        col_p.metric("Μέσος Χρόνος Παρίσι", f"{avg_par:.1f} ημέρες" if pd.notnull(avg_par) else "N/A")
-
-        fig_map = go.Figure()
-        for i in range(len(df_network)):
-            fig_map.add_trace(go.Scattergeo(
-                lon = [df_network['source_lon'][i], df_network['target_lon'][i]],
-                lat = [df_network['source_lat'][i], df_network['target_lat'][i]],
-                mode = 'lines',
-                line = dict(width = 1.5, color = 'red' if 'Paris' in str(df_network['target_label'][i]) else 'blue'),
-                opacity = 0.4
-            ))
-        fig_map.update_layout(geo=dict(scope='europe', showland=True, landcolor="lightgray"), height=600)
-        st.plotly_chart(fig_map, use_container_width=True)
-    else:
-        st.warning("⚠️ Πρόβλημα με τα δεδομένα του χάρτη (Palladio).")
-
-# ==========================================
-# ΚΑΡΤΕΛΑ 3: ΨΗΦΙΑΚΟ ΑΡΧΕΙΟ
-# ==========================================
-with tab_archive:
-    st.header("🔍 Αναζήτηση στις Πηγές")
-    if not df_main.empty and 'content' in df_main.columns:
-        query = st.text_input("Εισάγετε λέξη-κλειδί (π.χ. Μεσολόγγι, Κολοκοτρώνης):")
-        if query:
-            filtered = df_main[df_main['content'].astype(str).str.contains(query, case=False, na=False)]
-            st.write(f"Βρέθηκαν **{len(filtered)}** σχετικά άρθρα.")
-            
-            display_cols = [c for c in ['newspaper_title', 'date', 'country', 'publication_place'] if c in filtered.columns]
-            st.dataframe(filtered[display_cols], use_container_width=True)
-            
-            st.subheader("📖 Ανάγνωση Περιεχομένου")
-            if not filtered.empty and 'newspaper_title' in filtered.columns and 'date' in filtered.columns:
-                selected_article = st.selectbox("Επιλέξτε άρθρο:", filtered['newspaper_title'].astype(str) + " - " + filtered['date'].astype(str))
-                
-                content = filtered[filtered['newspaper_title'].astype(str) + " - " + filtered['date'].astype(str) == selected_article]['content'].values[0]
-                st.info(content)
-    else:
-        st.info("Το αρχείο κειμένων δεν είναι διαθέσιμο ή δεν περιέχει στήλη 'content'.")
+st.caption("MVP Streamlit dashboard για διερεύνηση corpus, χρονικών τάσεων, στάσης και πολιτικού προσανατολισμού.")
