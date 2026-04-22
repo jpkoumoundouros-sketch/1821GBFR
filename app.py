@@ -24,7 +24,7 @@ def load_data() -> pd.DataFrame:
 
     with zipfile.ZipFile(DATA_ZIP) as zf:
         with zf.open(CSV_NAME) as f:
-            df = pd.read_csv(f, sep=";", low_memory=False)
+            df = pd.read_csv(f, sep=";", low_memory=False, skiprows=1)
 
     df.columns = df.columns.str.lower().str.strip()
 
