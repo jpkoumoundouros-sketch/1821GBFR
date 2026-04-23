@@ -1,40 +1,91 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import zipfile
-from pathlib import Path
 
-st.set_page_config(
-    page_title="Greek Revolution Press Dashboard",
-    page_icon="🗞️",
-    layout="wide"
-)
+# --- ΡΥΘΜΙΣΕΙΣ ΣΕΛΙΔΑΣ ---
+st.set_page_config(page_title="Thesis Dashboard - 1821 Info Flows", page_icon="📈", layout="wide")
 
-DATA_ZIP = Path("THESIS_WITH_ORIENTATION.csv.zip")
-CSV_NAME = "THESIS_WITH_ORIENTATION.csv"
-NETWORK_CSV = Path("Palladio_Network_Data.csv")
-
-
-@st.cache_data(show_spinner=False)
-def load_data() -> pd.DataFrame:
-    if not DATA_ZIP.exists():
-        st.error(f"Δεν βρέθηκε το αρχείο: {DATA_ZIP}")
+# --- ΣΥΝΑΡΤΗΣΕΙΣ ΦΟΡΤΩΣΗΣ ---
+@st.cache_data
+def load_main_data():
+    try:
+        with zipfile.ZipFile("THESIS_WITH_ORIENTATION.csv.zip", 'r') as z:
+            real_file_name = [name for name in z.namelist() if not name.startswith('__MACOSX') and not name.startswith('._')][0]
+            with z.open(real_file_name) as f:
+                df = pd.read_csv(f, low_memory=False, encoding='utf-8', on_bad_lines='skip')
+        
+        df.columns = df.columns.str.lower().str.strip()
+        # Φιλτράρισμα για το Τελικό Corpus (Directly Relevant)
+        if 'ai_relevance' in df.columns:
+            df = df[df['ai_relevance'].astype(str).str.lower().str.strip() == 'directly_relevant']
+        
+        if 'date' in df.columns:
+            df['date'] = pd.to_datetime(df['date'], errors='coerce')
+        return df
+    except Exception as e:
+        st.error(f"Σφάλμα φόρτωσης: {e}")
         return pd.DataFrame()
 
-    with zipfile.ZipFile(DATA_ZIP) as zf:
-        with zf.open(CSV_NAME) as f:
-            df = pd.read_csv(f, sep=";", low_memory=False, skiprows=1)
+df_main = load_main_data()
 
-    df.columns = df.columns.str.lower().str.strip()
+# --- ΕΠΙΚΕΦΑΛΙΔΑ ---
+st.title("🏛️ Ψηφιακό Παράρτημα: Διακρατικές Ροές Πληροφορίας")
+st.markdown(f"### Ανάλυση Τελικού Corpus: {len(df_main):,} Άρθρα (Directly Relevant)")
+st.divider()
 
-    # Date normalization
-    if "date" in df.columns:
-        df["date"] = pd.to_datetime(df["date"], errors="coerce")
+tab_stats, tab_flows = st.tabs(["📊 Στατιστικά Διατριβής", "🌍 Top 100 Ροές Ειδήσεων"])
 
-    # Text cleanup
-    for col in ["country", "ai_topic", "ai_stance", "newspaper_title", "publication_place", "political_orientation", "news_origin_norm"]:
-        if col in df.columns:
+# ==========================================
+# ΚΑΡΤΕΛΑ 1: ΣΤΑΤΙΣΤΙΚΑ (55k+)
+# ==========================================
+with tab_stats:
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Τελικό Corpus (AI Filtered)", f"{len(df_main):,}")
+    col2.metric("Εφημερίδες", df_main['newspaper_title'].nunique())
+    col3.metric("Χώρες", df_main['country'].nunique())
+
+    st.divider()
+    
+    c1, c2 = st.columns(2)
+    with c1:
+        st.subheader("📅 Ένταση Αρθρογραφίας (Relevant Only)")
+        df_main['year'] = df_main['date'].dt.year
+        fig_year = px.histogram(df_main.dropna(subset=['year']), x="year", color="country", barmode="group",
+                                 color_discrete_map={'gb': 'blue', 'fr': 'red'})
+        st.plotly_chart(fig_year, use_container_width=True)
+    
+    with c2:
+        st.subheader("⚖️ Πολιτική Στάση ανά Χώρα")
+        fig_stance = px.sunburst(df_main.dropna(subset=['ai_stance', 'country']), 
+                                 path=['country', 'ai_stance'], color='country')
+        st.plotly_chart(fig_stance, use_container_width=True)
+
+# ==========================================
+# ΚΑΡΤΕΛΑ 2: TOP 100 INFO FLOWS
+# ==========================================
+with tab_flows:
+    st.subheader("Ανάλυση Προέλευσης Ειδήσεων (news_origin -> publication_place)")
+    
+    # Δημιουργία των Flows
+    if 'news_origin' in df_main.columns and 'publication_place' in df_main.columns:
+        # Μετράμε τις συχνότητες των ζευγαριών
+        flows = df_main.groupby(['news_origin', 'publication_place']).size().reset_index(name='counts')
+        # Παίρνουμε τις Top 100 ροές
+        top_100_flows = flows.sort_values(by='counts', ascending=False).head(100)
+        
+        # Οπτικοποίηση με Sankey Diagram (προαιρετικά) ή Bar Chart
+        fig_flow = px.bar(top_100_flows, x='news_origin', y='counts', color='publication_place',
+                          title="Κυρίαρχες Πηγές Προέλευσης Ειδήσεων (Top 100 Διαδρομές)",
+                          labels={'news_origin': 'Πόλη Προέλευσης (Origin)', 'counts': 'Πλήθος Άρθρων'})
+        st.plotly_chart(fig_flow, use_container_width=True)
+        
+        # Πίνακας Δεδομένων
+        st.write("### Λεπτομερή Στοιχεία Ροών")
+        st.dataframe(top_100_flows, use_container_width=True)
+    else:
+        st.warning("Δεν βρέθηκαν οι στήλες news_origin ή publication_place.")        if col in df.columns:
             df[col] = df[col].astype(str).replace("nan", pd.NA).str.strip()
 
     if "year" not in df.columns and "date" in df.columns:
