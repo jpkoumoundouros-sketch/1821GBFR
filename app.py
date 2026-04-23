@@ -1,8 +1,17 @@
 df.columns = df.columns.str.lower().str.strip()
 
-        # DEBUG: δες τι τιμές έχει το ai_relevance ΠΡΙΝ το φιλτράρισμα
         if 'ai_relevance' in df.columns:
-            st.write("Μοναδικές τιμές ai_relevance:", 
-                     df['ai_relevance'].value_counts().to_dict())
-        else:
-            st.write("Στήλες που βρέθηκαν:", list(df.columns))
+            # Φιλτράρισμα ανεξάρτητο κεφαλαίων/κενών/παραλλαγών
+            mask = (
+                df['ai_relevance']
+                .astype(str)
+                .str.lower()
+                .str.strip()
+                .str.replace('_', '')   # καλύπτει "directlyrelevant" και "directly_relevant"
+                == 'directlyrelevant'
+            )
+            df = df[mask].copy()
+            
+            if df.empty:
+                st.warning("Το φιλτράρισμα επέστρεψε 0 εγγραφές. "
+                           "Έλεγξε τις τιμές του ai_relevance.")
