@@ -14,7 +14,7 @@ def load_main_data():
                 and name.endswith('.csv')
             ]
             if not csv_files:
-                st.error("Δεν βρέθηκε CSV.")
+                st.error("No CSV found in zip.")
                 return pd.DataFrame()
             with z.open(csv_files[0]) as f:
                 raw_bytes = f.read()
@@ -59,10 +59,10 @@ def load_main_data():
         return df
 
     except FileNotFoundError:
-        st.error("Το αρχείο zip δεν βρέθηκε.")
+        st.error("Zip file not found.")
         return pd.DataFrame()
     except Exception as e:
-        st.error(f"Σφάλμα φόρτωσης: {e}")
+        st.error(f"Load error: {e}")
         return pd.DataFrame()
 
 
@@ -74,5 +74,10 @@ def main():
     if df.empty:
         st.stop()
 
-    # DEBUG — διάγραμμα τιμών ai_relevance (διάγραφε αφού επιβεβαιωθεί)
-    st.write("Εγγραφές μετά το φιλ
+    st.write("Rows after filter:", len(df))
+    st.write("ai_relevance values:", df['ai_relevance'].value_counts().to_dict())
+    st.write("Columns found:", list(df.columns))
+
+
+if __name__ == "__main__":
+    main()
