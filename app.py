@@ -14,7 +14,7 @@ st.set_page_config(page_title="Thesis Dashboard - 1821 Info Flows", page_icon="�
 def load_main_data():
     try:
         # Άνοιγμα του ZIP
-        with zipfile.ZipFile("THESIS_WITH_ORIENTATION.zip", 'r') as z:
+        with zipfile.ZipFile("THESIS_RECLASSIFIED_FINAL.csv.zip", 'r') as z:
             csv_files = [name for name in z.namelist() if not name.startswith('__MACOSX') and not name.startswith('._') and name.endswith('.csv')]
             if not csv_files:
                 return pd.DataFrame()
