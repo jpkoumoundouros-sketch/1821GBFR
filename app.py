@@ -113,11 +113,22 @@ with tab_overview:
     col1.metric("Άρθρα (Βάσει Φίλτρων)", f"{len(df_filtered):,}")
     col2.metric("Εφημερίδες", df_filtered['newspaper_title'].nunique() if 'newspaper_title' in df_filtered.columns else "N/A")
     col3.metric("Χώρες", df_filtered['country'].nunique() if 'country' in df_filtered.columns else "N/A")
+    
+    st.divider()
+    
+    # ΝΕΟ: Πανοραμικό Διάγραμμα Όγκου Δημοσιεύσεων
+    st.subheader("📈 Διαχρονική Εξέλιξη Όγκου Δημοσιεύσεων")
+    if not df_filtered.empty:
+        df_vol = df_filtered[df_filtered['year_val'] > 0].groupby(['year_val', 'country']).size().reset_index(name='count')
+        fig_vol = px.line(df_vol, x='year_val', y='count', color='country', markers=True, color_discrete_map=color_map)
+        fig_vol.update_layout(xaxis_title="Έτος", yaxis_title="Αριθμός Άρθρων (Όγκος)", margin=dict(t=10, b=10))
+        st.plotly_chart(fig_vol, use_container_width=True)
+    
     st.divider()
     
     c1, c2 = st.columns([2, 1])
     with c1:
-        st.subheader("📈 Εξέλιξη Πολιτικής Στάσης στον Χρόνο")
+        st.subheader("⚖️ Εξέλιξη Πολιτικής Στάσης")
         if not df_filtered.empty and 'ai_stance' in df_filtered.columns:
             df_time = df_filtered[df_filtered['year_val'] > 0].groupby(['year_val', 'ai_stance']).size().reset_index(name='count')
             fig_timeline = px.line(df_time, x='year_val', y='count', color='ai_stance', markers=True, labels={'year_val': 'Έτος', 'count': 'Αριθμός Άρθρων'})
@@ -143,12 +154,9 @@ with tab_deepdive:
         with c3:
             st.subheader("🌊 Διαχρονική Εξέλιξη Θεματολογίας")
             df_topic_time = df_filtered[df_filtered['year_val'] > 0].groupby(['year_val', 'ai_topic']).size().reset_index(name='count')
-            
             if not df_topic_time.empty:
-                # Κρατάμε τα top 8 θέματα
                 top_8_topics = df_filtered['ai_topic'].value_counts().nlargest(8).index
                 df_topic_time = df_topic_time[df_topic_time['ai_topic'].isin(top_8_topics)]
-                
                 fig_area = px.area(df_topic_time, x='year_val', y='count', color='ai_topic', labels={'year_val': 'Έτος', 'count': 'Όγκος Άρθρων'})
                 st.plotly_chart(fig_area, use_container_width=True)
             else:
@@ -158,10 +166,7 @@ with tab_deepdive:
             st.subheader("🌡️ Heatmap: Στάση vs Θεματολογία")
             top_15_topics = df_filtered['ai_topic'].value_counts().nlargest(15).index
             df_heat = df_filtered[df_filtered['ai_topic'].isin(top_15_topics)]
-            
-            # ΔΙΧΤΥ ΑΣΦΑΛΕΙΑΣ: Ελέγχουμε αν έχουμε όντως δεδομένα και τουλάχιστον 2 διαφορετικά θέματα
             if not df_heat.empty and len(df_heat['ai_topic'].unique()) > 0:
-                # Αφαιρέθηκαν τα ευαίσθητα marginals και μπήκε lowercase color scale
                 fig_heat = px.density_heatmap(df_heat, x='ai_stance', y='ai_topic', color_continuous_scale="viridis")
                 fig_heat.update_layout(xaxis_title="Πολιτική Στάση", yaxis_title="Θέμα")
                 st.plotly_chart(fig_heat, use_container_width=True)
@@ -169,6 +174,7 @@ with tab_deepdive:
                 st.info("Δεν επαρκούν τα δεδομένα βάσει των φίλτρων σου για τη δημιουργία Heatmap.")
     else:
         st.info("Δεν υπάρχουν δεδομένα για αυτή την ανάλυση.")
+
 # ==========================================
 # ΚΑΡΤΕΛΑ 3: ΔΙΚΤΥΑ ΡΟΩΝ (Flows)
 # ==========================================
