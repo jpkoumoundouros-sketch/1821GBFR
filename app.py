@@ -9,11 +9,59 @@ import re
 # --- ΡΥΘΜΙΣΕΙΣ ΣΕΛΙΔΑΣ ---
 st.set_page_config(page_title="Thesis Dashboard - 1821 Info Flows", page_icon="🏛️", layout="wide")
 
+# ==========================================
+# 📚 ΛΕΞΙΚΑ ΚΑΝΟΝΙΚΟΠΟΙΗΣΗΣ ΟΝΤΟΤΗΤΩΝ (NER)
+# ==========================================
+# Πρόσθεσε εδώ όσες παραλλαγές θέλεις (με μικρά γράμματα στη λίστα)
+PERSON_ALIASES = {
+    'Ibrahim Pasha': ['ibrahim', 'ibrahim pacha', 'ibrahim pasha', 'ibrahim pascha', 'pacha of egypt'],
+    'Theodoros Kolokotronis': ['kolokotronis', 'colocotroni', 'colocotronis', 'kolokotroni'],
+    'Sultan Mahmud II': ['mahmud', 'mahmoud', 'sultan', 'grand signior', 'mahmud ii'],
+    'Lord Byron': ['byron', 'lord byron'],
+    'Ioannis Kapodistrias': ['capodistrias', 'capo d\'istria', 'kapodistrias', 'count capodistrias'],
+    'Admiral Codrington': ['codrington', 'edward codrington', 'admiral codrington'],
+    'Reshid Pasha (Kiutahi)': ['reshid', 'kiutahi', 'redschid', 'redschid pacha'],
+    'Alexander Ypsilantis': ['ypsilanti', 'ypsilantis', 'hypsilantes']
+}
+
+LOC_ALIASES = {
+    'Missolonghi': ['missolonghi', 'mesolongi', 'missolongi', 'micsolonghi'],
+    'Navarino': ['navarino', 'navarin'],
+    'Constantinople': ['constantinople', 'istanbul', 'stamboul'],
+    'Athens': ['athens', 'athènes'],
+    'Peloponnese': ['peloponnese', 'morea', 'morée', 'peloponnesus'],
+    'Smyrna': ['smyrna', 'izmir'],
+    'London': ['london', 'londres']
+}
+
+def normalize_entities(entity_str, alias_dict):
+    """Μετατρέπει τις παραλλαγές στο κεντρικό, επίσημο όνομα."""
+    if pd.isna(entity_str) or not isinstance(entity_str, str):
+        return ""
+    
+    entities = [e.strip() for e in entity_str.split(',')]
+    cleaned = []
+    
+    for e in entities:
+        e_lower = e.lower()
+        matched = False
+        for main_name, aliases in alias_dict.items():
+            if e_lower in aliases:
+                cleaned.append(main_name)
+                matched = True
+                break
+        if not matched and e_lower != '':
+            # Αν δεν το βρει στο λεξικό, το κρατάει ως έχει με το πρώτο γράμμα κεφαλαίο
+            cleaned.append(e.title())
+            
+    # Χρησιμοποιούμε set() για να αφαιρέσουμε τα διπλότυπα στο ίδιο άρθρο
+    return ", ".join(sorted(list(set(cleaned))))
+
 # --- ΣΥΝΑΡΤΗΣΕΙΣ ΦΟΡΤΩΣΗΣ ΔΕΔΟΜΕΝΩΝ ---
 @st.cache_data
 def load_main_data():
     try:
-        with zipfile.ZipFile("THESIS_RECLASSIFIED_FINAL.csv.zip", 'r') as z:
+        with zipfile.ZipFile("THESIS_WITH_ORIENTATION.zip", 'r') as z:
             csv_files = [name for name in z.namelist() if not name.startswith('__MACOSX') and not name.startswith('._') and name.endswith('.csv')]
             if not csv_files:
                 return pd.DataFrame()
@@ -23,7 +71,6 @@ def load_main_data():
                 content_bytes = f.read()
         
         text_content = content_bytes.decode('utf-8', errors='replace')
-        
         df = pd.read_csv(io.StringIO(text_content), sep=',', low_memory=False, on_bad_lines='skip')
         if len(df.columns) < 3:
             df = pd.read_csv(io.StringIO(text_content), sep=';', low_memory=False, on_bad_lines='skip')
@@ -32,39 +79,46 @@ def load_main_data():
         
         # 1. Φιλτράρισμα Directly Relevant
         if 'ai_relevance' in df.columns:
-            df = df[df['ai_relevance'].astype(str).str.lower().str.strip() == 'directly_relevant'].copy()
-        
-        # 2. Καθαρισμός Χώρας
+            df = df[df['ai_relevance'].astype(str).str.lower().str.strip().str.contains('directly_relevant')].copy()
+            
+        # 2. ΣΚΟΥΠΑ ΓΙΑ "ΠΑΡΑΙΣΘΗΣΕΙΣ" ΤΟΥ AI (Αφαίρεση του relevance από τα Stance/Topics)
+        if 'ai_stance' in df.columns:
+            df['ai_stance'] = df['ai_stance'].astype(str).fillna('Άγνωστη Στάση')
+            df.loc[df['ai_stance'].str.lower().str.contains('relevant|irrelevant|unknown'), 'ai_stance'] = 'Άγνωστη Στάση'
+        if 'ai_topic' in df.columns:
+            df['ai_topic'] = df['ai_topic'].astype(str).fillna('Άγνωστο Θέμα')
+            df.loc[df['ai_topic'].str.lower().str.contains('relevant|irrelevant|unknown'), 'ai_topic'] = 'Άγνωστο Θέμα'
+
+        # 3. Καθαρισμός Χώρας
         if 'country' in df.columns:
             df['country'] = df['country'].astype(str).str.strip().str.upper()
             country_map = {
                 'UK': 'GB', 'GBR': 'GB', 'UNITED KINGDOM': 'GB', 'GREAT BRITAIN': 'GB',
-                'FR': 'FR', 'FRA': 'FR', 'FRANCE': 'FR',
-                'NAN': 'ΑΓΝΩΣΤΗ', 'NONE': 'ΑΓΝΩΣΤΗ'
+                'FR': 'FR', 'FRA': 'FR', 'FRANCE': 'FR', 'NAN': 'ΑΓΝΩΣΤΗ', 'NONE': 'ΑΓΝΩΣΤΗ'
             }
             df['country'] = df['country'].replace(country_map)
             
-        # 3. Καθαρισμός Έτους (Το "Αλεξίσφαιρο" Regex Fix)
+        # 4. Καθαρισμός Έτους
         df['year_val'] = 0
         if 'year' in df.columns:
             df['year_val'] = pd.to_numeric(df['year'], errors='coerce').fillna(0)
-            
         if 'date' in df.columns:
             mask_zero = df['year_val'] == 0
             if mask_zero.any():
                 extracted = df.loc[mask_zero, 'date'].astype(str).str.extract(r'(18[23]\d)')[0]
                 df.loc[mask_zero, 'year_val'] = pd.to_numeric(extracted, errors='coerce').fillna(0)
-        
         df.loc[(df['year_val'] < 1821) | (df['year_val'] > 1832), 'year_val'] = 0
         
-        # 4. Καθαρισμός Metadata
-        df['ai_stance'] = df['ai_stance'].fillna('Άγνωστη').astype(str).replace('nan', 'Άγνωστη')
-        df['ai_topic'] = df['ai_topic'].fillna('Άγνωστο').astype(str).replace('nan', 'Άγνωστο')
-        
-        # Εξασφάλιση στηλών NER
-        for col in ['entities_persons', 'entities_locations', 'entities_orgs']:
-            if col not in df.columns:
-                df[col] = ''
+        # 5. ΚΑΝΟΝΙΚΟΠΟΙΗΣΗ ΟΝΤΟΤΗΤΩΝ (NER NORMALIZATION)
+        if 'entities_persons' in df.columns:
+            df['entities_persons'] = df['entities_persons'].apply(lambda x: normalize_entities(x, PERSON_ALIASES))
+        else:
+            df['entities_persons'] = ''
+            
+        if 'entities_locations' in df.columns:
+            df['entities_locations'] = df['entities_locations'].apply(lambda x: normalize_entities(x, LOC_ALIASES))
+        else:
+            df['entities_locations'] = ''
             
         return df
     except Exception as e:
@@ -79,23 +133,18 @@ if df_main.empty:
 
 # --- ΠΛΑΪΝΗ ΜΠΑΡΑ (SIDEBAR) ΦΙΛΤΡΩΝ ---
 st.sidebar.header("🎛️ Φίλτρα Ανάλυσης")
-st.sidebar.markdown("Τα γραφήματα αναπροσαρμόζονται δυναμικά:")
 
-# Χώρα
 valid_countries = sorted([c for c in df_main['country'].unique() if c != 'ΑΓΝΩΣΤΗ'])
 if 'ΑΓΝΩΣΤΗ' in df_main['country'].unique(): valid_countries.append('ΑΓΝΩΣΤΗ')
 sel_countries = st.sidebar.multiselect("Χώρες:", valid_countries, default=[c for c in valid_countries if c != 'ΑΓΝΩΣΤΗ'])
 
-# Έτος
 v_years = df_main[df_main['year_val'] > 0]['year_val']
 min_y, max_y = int(v_years.min()), int(v_years.max())
 sel_years = st.sidebar.slider("Περίοδος:", min_y, max_y, (min_y, max_y))
 
-# Στάση & Θέμα
 sel_stances = st.sidebar.multiselect("Στάση (Stance):", sorted(df_main['ai_stance'].unique()), default=sorted(df_main['ai_stance'].unique()))
 sel_topics = st.sidebar.multiselect("Θέμα (Topic):", sorted(df_main['ai_topic'].unique()), default=[])
 
-# Εφαρμογή Φίλτρων
 y_filt = (df_main['year_val'] >= sel_years[0]) & (df_main['year_val'] <= sel_years[1])
 if sel_years[0] == min_y and sel_years[1] == max_y: y_filt = y_filt | (df_main['year_val'] == 0)
 
@@ -103,37 +152,29 @@ df_filt = df_main[(df_main['country'].isin(sel_countries)) & y_filt & (df_main['
 if sel_topics: df_filt = df_filt[df_filt['ai_topic'].isin(sel_topics)]
 
 st.sidebar.divider()
-st.sidebar.download_button("💾 Λήψη Φιλτραρισμένων Δεδομένων", df_filt.to_csv(index=False, encoding='utf-8-sig'), "Filtered_Thesis_Data.csv")
+st.sidebar.download_button("💾 Λήψη Δεδομένων", df_filt.to_csv(index=False, encoding='utf-8-sig'), "Filtered_Data.csv")
 
 # --- UI ΕΠΙΚΕΦΑΛΙΔΑ ---
 st.title("🏛️ Ψηφιακό Παράρτημα: Διακρατικές Ροές Πληροφορίας")
-st.markdown(f"**Ενεργό Corpus:** {len(df_filt):,} / {len(df_main):,} Άρθρα | **Χρονική Περίοδος:** {sel_years[0]} - {sel_years[1]}")
+st.markdown(f"**Ενεργό Corpus:** {len(df_filt):,} / {len(df_main):,} Άρθρα | **Περίοδος:** {sel_years[0]} - {sel_years[1]}")
 st.divider()
 
 color_map = {'GB': '#1f77b4', 'FR': '#d62728', 'ΑΓΝΩΣΤΗ': '#7f7f7f'}
 
 # --- ΚΑΡΤΕΛΕΣ ---
-t1, t2, t3, t4, t5, t6 = st.tabs([
-    "📊 Επισκόπηση", 
-    "📰 Εκδοτικό Τοπίο",
-    "🧠 Θεματολογία", 
-    "🌍 Δίκτυα (Flows)", 
-    "👥 Οντότητες (NER)",
-    "🔍 Αρχείο"
-])
+t1, t2, t3, t4, t5, t6 = st.tabs(["📊 Επισκόπηση", "📰 Εκδοτικό Τοπίο", "🧠 Θεματολογία", "🌍 Ροές", "👥 Οντότητες", "🔍 Αρχείο"])
 
-# 1. ΕΠΙΣΚΟΠΗΣΗ
 with t1:
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Επιλεγμένα Άρθρα", f"{len(df_filt):,}")
+    c1.metric("Άρθρα", f"{len(df_filt):,}")
     c2.metric("Εφημερίδες", df_filt['newspaper_title'].nunique() if 'newspaper_title' in df_filt.columns else 0)
     c3.metric("Αναφορές Προσώπων", sum(df_filt['entities_persons'].str.count(',') + 1) if 'entities_persons' in df_filt.columns else 0)
     c4.metric("Αναφορές Τόπων", sum(df_filt['entities_locations'].str.count(',') + 1) if 'entities_locations' in df_filt.columns else 0)
     
-    st.subheader("📈 Διαχρονική Εξέλιξη Όγκου Δημοσιεύσεων")
+    st.subheader("📈 Όγκος Δημοσιεύσεων ανά Έτος")
     if not df_filt.empty:
         df_v = df_filt[df_filt['year_val'] > 0].groupby(['year_val', 'country']).size().reset_index(name='c')
-        fig_v = px.line(df_v, x='year_val', y='c', color='country', markers=True, color_discrete_map=color_map, labels={'year_val': 'Έτος', 'c': 'Άρθρα'})
+        fig_v = px.line(df_v, x='year_val', y='c', color='country', markers=True, color_discrete_map=color_map)
         st.plotly_chart(fig_v, use_container_width=True)
     
     c5, c6 = st.columns(2)
@@ -142,42 +183,31 @@ with t1:
         fig_s = px.sunburst(df_filt, path=['country', 'ai_stance'], color='country', color_discrete_map=color_map)
         st.plotly_chart(fig_s, use_container_width=True)
     with c6:
-        st.subheader("⏳ Εξέλιξη Στάσης στον Χρόνο")
+        st.subheader("⏳ Εξέλιξη Στάσης")
         df_ts = df_filt[df_filt['year_val'] > 0].groupby(['year_val', 'ai_stance']).size().reset_index(name='c')
-        fig_ts = px.line(df_ts, x='year_val', y='c', color='ai_stance', markers=True, labels={'year_val': 'Έτος', 'c': 'Άρθρα'})
+        fig_ts = px.line(df_ts, x='year_val', y='c', color='ai_stance', markers=True)
         st.plotly_chart(fig_ts, use_container_width=True)
 
-# 2. ΕΚΔΟΤΙΚΟ ΤΟΠΙΟ
 with t2:
     st.subheader("📰 Πολιτική Γραμμή Κορυφαίων Εφημερίδων")
-    st.markdown("Ανάλυση της πολιτικής στάσης εντός των 20 εφημερίδων με τη μεγαλύτερη παραγωγή άρθρων.")
     if 'newspaper_title' in df_filt.columns and not df_filt.empty:
         top_np = df_filt['newspaper_title'].value_counts().nlargest(20).index
         df_np = df_filt[df_filt['newspaper_title'].isin(top_np)].groupby(['newspaper_title', 'ai_stance']).size().reset_index(name='count')
-        fig_np = px.bar(df_np, x='count', y='newspaper_title', color='ai_stance', orientation='h', 
-                        labels={'count': 'Αριθμός Άρθρων', 'newspaper_title': 'Εφημερίδα'})
+        fig_np = px.bar(df_np, x='count', y='newspaper_title', color='ai_stance', orientation='h')
         fig_np.update_layout(yaxis={'categoryorder':'total ascending'}, barmode='stack')
         st.plotly_chart(fig_np, use_container_width=True, height=600)
 
-# 3. ΘΕΜΑΤΟΛΟΓΙΑ
 with t3:
-    st.subheader("🌊 Εξέλιξη Κυρίαρχων Θεμάτων (Top 10)")
+    st.subheader("🌊 Εξέλιξη Κυρίαρχων Θεμάτων")
     if 'ai_topic' in df_filt.columns and not df_filt.empty:
         top_t = df_filt['ai_topic'].value_counts().nlargest(10).index
         df_t_time = df_filt[(df_filt['year_val'] > 0) & (df_filt['ai_topic'].isin(top_t))].groupby(['year_val', 'ai_topic']).size().reset_index(name='c')
         if not df_t_time.empty:
             fig_a = px.area(df_t_time, x='year_val', y='c', color='ai_topic')
             st.plotly_chart(fig_a, use_container_width=True)
-            
-        st.subheader("🌡️ Heatmap: Θέμα vs Στάση")
-        df_heat = df_filt[df_filt['ai_topic'].isin(top_t)]
-        if not df_heat.empty and len(df_heat['ai_topic'].unique()) > 0:
-            fig_h = px.density_heatmap(df_heat, x='ai_stance', y='ai_topic', color_continuous_scale="viridis")
-            st.plotly_chart(fig_h, use_container_width=True)
 
-# 4. FLOWS
 with t4:
-    st.subheader("Χαρτογράφηση Ροής: Πηγή ➔ Κέντρο Έκδοσης")
+    st.subheader("🌍 Χαρτογράφηση Ροής (Origin ➔ Publication)")
     if 'news_origin' in df_filt.columns and 'publication_place' in df_filt.columns and not df_filt.empty:
         f_df = df_filt.dropna(subset=['news_origin', 'publication_place'])
         f_grp = f_df.groupby(['news_origin', 'publication_place']).size().reset_index(name='c')
@@ -192,15 +222,11 @@ with t4:
             ))
             fig_sk.update_layout(height=700)
             st.plotly_chart(fig_sk, use_container_width=True)
-        else:
-            st.info("Ανεπαρκή δεδομένα για το διάγραμμα ροών.")
 
-# 5. NER
 with t5:
-    st.markdown("Αναγνώριση Οντοτήτων: Τα πρόσωπα και οι τόποι που κυριάρχησαν στον Τύπο.")
+    st.markdown("Τα ονόματα έχουν κανονικοποιηθεί (π.χ. Ibrahim Pacha -> Ibrahim Pasha).")
     c7, c8 = st.columns(2)
-    
-    def plot_ner(column, title, color_scale):
+    def plot_ner(column, color_scale):
         if column in df_filt.columns and not df_filt.empty:
             items = df_filt[column].dropna().astype(str).str.split(',').explode().str.strip()
             items = items[(items != '') & (~items.str.lower().isin(['nan', 'none', 'unknown']))]
@@ -214,24 +240,19 @@ with t5:
 
     with c7:
         st.subheader("👤 Top 20 Πρόσωπα")
-        f_p = plot_ner('entities_persons', '', 'Teal')
+        f_p = plot_ner('entities_persons', 'Teal')
         if f_p: st.plotly_chart(f_p, use_container_width=True)
-        
     with c8:
         st.subheader("📍 Top 20 Τοποθεσίες")
-        f_l = plot_ner('entities_locations', '', 'Oranges')
+        f_l = plot_ner('entities_locations', 'Oranges')
         if f_l: st.plotly_chart(f_l, use_container_width=True)
 
-# 6. ARCHIVE
 with t6:
     st.subheader("🔍 Αναζήτηση στο Κείμενο")
     if 'content' in df_filt.columns:
-        sq = st.text_input("Λέξη-κλειδί (π.χ. Missolonghi):")
+        sq = st.text_input("Λέξη-κλειδί:")
         if sq:
             r = df_filt[df_filt['content'].astype(str).str.contains(sq, case=False, na=False)]
             st.write(f"**Βρέθηκαν {len(r)} άρθρα.**")
             if not r.empty:
                 st.dataframe(r[['newspaper_title', 'date', 'country', 'ai_topic', 'ai_stance']].head(100), use_container_width=True)
-                sel_a = st.selectbox("Επίλεξε άρθρο:", r['newspaper_title'].astype(str) + " (" + r['date'].astype(str) + ")")
-                if sel_a:
-                    st.info(r[r['newspaper_title'].astype(str) + " (" + r['date'].astype(str) + ")" == sel_a]['content'].values[0])
