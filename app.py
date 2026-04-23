@@ -46,17 +46,31 @@ def load_main_data():
             df['ai_topic'] = df['ai_topic'].fillna('Άγνωστο Θέμα').astype(str).replace('nan', 'Άγνωστο Θέμα')
         
         # --- ΑΠΟΛΥΤΟΣ ΚΑΘΑΡΙΣΜΟΣ ΕΤΟΥΣ ---
-        # ΠΡΩΤΑ κοιτάμε αν υπάρχει έτοιμη η στήλη 'year' από τα δεδομένα σου!
+        df['year_val'] = 0 # Ξεκινάμε με μηδέν
+        
+        # Βήμα 1: Προσπάθεια από την έτοιμη στήλη year
         if 'year' in df.columns:
             df['year_val'] = pd.to_numeric(df['year'], errors='coerce').fillna(0)
-        elif 'date' in df.columns:
-            df['date'] = pd.to_datetime(df['date'], dayfirst=True, errors='coerce')
-            df['year_val'] = df['date'].dt.year.fillna(0) 
-        else:
-            df['year_val'] = 0
             
-        return df
-    except Exception as e:
+        # Βήμα 2: Αν υπάρχουν ακόμα μηδενικά, προσπάθεια από τη στήλη date με pandas
+        if 'date' in df.columns:
+            mask = df['year_val'] == 0
+            if mask.any():
+                temp_dates = pd.to_datetime(df.loc[mask, 'date'], dayfirst=True, errors='coerce')
+                df.loc[mask, 'year_val'] = temp_dates.dt.year.fillna(0)
+                
+        # Βήμα 3: ΤΟ ΑΠΟΛΥΤΟ ΦΙΛΤΡΟ (Regex). Για όσα άρθρα (ειδικά Βρετανικά) αρνούνται πεισματικά, 
+        # ψάχνουμε μέσα στο κείμενο για 4 νούμερα που ξεκινάνε από 18 (π.χ. 1826)
+        if 'date' in df.columns:
+            mask_final = df['year_val'] == 0
+            if mask_final.any():
+                extracted_years = df.loc[mask_final, 'date'].astype(str).str.extract(r'(18\d{2})')[0]
+                df.loc[mask_final, 'year_val'] = pd.to_numeric(extracted_years, errors='coerce').fillna(0)
+
+        # Βήμα 4: Απορρίπτουμε εντελώς παράλογα έτη (π.χ. 1899)
+        df.loc[(df['year_val'] < 1821) | (df['year_val'] > 1832), 'year_val'] = 0
+            
+        return df    except Exception as e:
         st.error(f"Σφάλμα φόρτωσης: {e}")
         return pd.DataFrame()
 
