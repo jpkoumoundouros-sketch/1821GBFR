@@ -143,25 +143,32 @@ with tab_deepdive:
         with c3:
             st.subheader("🌊 Διαχρονική Εξέλιξη Θεματολογίας")
             df_topic_time = df_filtered[df_filtered['year_val'] > 0].groupby(['year_val', 'ai_topic']).size().reset_index(name='count')
-            # Κρατάμε τα top 8 θέματα για να μην μπουκώσει το γράφημα
-            top_8_topics = df_filtered['ai_topic'].value_counts().nlargest(8).index
-            df_topic_time = df_topic_time[df_topic_time['ai_topic'].isin(top_8_topics)]
             
-            fig_area = px.area(df_topic_time, x='year_val', y='count', color='ai_topic', labels={'year_val': 'Έτος', 'count': 'Όγκος Άρθρων'})
-            st.plotly_chart(fig_area, use_container_width=True)
+            if not df_topic_time.empty:
+                # Κρατάμε τα top 8 θέματα
+                top_8_topics = df_filtered['ai_topic'].value_counts().nlargest(8).index
+                df_topic_time = df_topic_time[df_topic_time['ai_topic'].isin(top_8_topics)]
+                
+                fig_area = px.area(df_topic_time, x='year_val', y='count', color='ai_topic', labels={'year_val': 'Έτος', 'count': 'Όγκος Άρθρων'})
+                st.plotly_chart(fig_area, use_container_width=True)
+            else:
+                st.info("Δεν υπάρχουν αρκετά δεδομένα για το γράφημα εξέλιξης.")
 
         with c4:
             st.subheader("🌡️ Heatmap: Στάση vs Θεματολογία")
-            # Δημιουργία Heatmap για τον εντοπισμό συσχετίσεων
             top_15_topics = df_filtered['ai_topic'].value_counts().nlargest(15).index
             df_heat = df_filtered[df_filtered['ai_topic'].isin(top_15_topics)]
             
-            fig_heat = px.density_heatmap(df_heat, x='ai_stance', y='ai_topic', marginal_x="histogram", marginal_y="histogram", color_continuous_scale="Viridis")
-            fig_heat.update_layout(xaxis_title="Πολιτική Στάση", yaxis_title="Θέμα")
-            st.plotly_chart(fig_heat, use_container_width=True)
+            # ΔΙΧΤΥ ΑΣΦΑΛΕΙΑΣ: Ελέγχουμε αν έχουμε όντως δεδομένα και τουλάχιστον 2 διαφορετικά θέματα
+            if not df_heat.empty and len(df_heat['ai_topic'].unique()) > 0:
+                # Αφαιρέθηκαν τα ευαίσθητα marginals και μπήκε lowercase color scale
+                fig_heat = px.density_heatmap(df_heat, x='ai_stance', y='ai_topic', color_continuous_scale="viridis")
+                fig_heat.update_layout(xaxis_title="Πολιτική Στάση", yaxis_title="Θέμα")
+                st.plotly_chart(fig_heat, use_container_width=True)
+            else:
+                st.info("Δεν επαρκούν τα δεδομένα βάσει των φίλτρων σου για τη δημιουργία Heatmap.")
     else:
-        st.info("Λείπουν οι στήλες 'ai_topic' ή 'ai_stance'.")
-
+        st.info("Δεν υπάρχουν δεδομένα για αυτή την ανάλυση.")
 # ==========================================
 # ΚΑΡΤΕΛΑ 3: ΔΙΚΤΥΑ ΡΟΩΝ (Flows)
 # ==========================================
