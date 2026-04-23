@@ -31,10 +31,13 @@ def load_main_data():
         if 'ai_relevance' in df.columns:
             df = df[df['ai_relevance'].astype(str).str.lower().str.strip() == 'directly_relevant'].copy()
         
+        # --- ΑΠΟΛΥΤΟΣ ΚΑΘΑΡΙΣΜΟΣ ΧΩΡΑΣ (UK -> GB) ---
         if 'country' in df.columns:
-            # Τα κάνουμε όλα ΚΕΦΑΛΑΙΑ και μετατρέπουμε το UK σε GB για ομοιομορφία
             df['country'] = df['country'].astype(str).str.strip().str.upper()
-            df['country'] = df['country'].replace({'UK': 'GB', 'NAN': 'ΑΓΝΩΣΤΗ'})
+            df.loc[df['country'] == 'UK', 'country'] = 'GB'
+            df.loc[df['country'] == 'UNITED KINGDOM', 'country'] = 'GB'
+            df.loc[df['country'] == 'FRANCE', 'country'] = 'FR'
+            df.loc[df['country'] == 'NAN', 'country'] = 'ΑΓΝΩΣΤΗ'
             
         if 'ai_stance' in df.columns:
             df['ai_stance'] = df['ai_stance'].fillna('Άγνωστη Στάση').astype(str).replace('nan', 'Άγνωστη Στάση')
@@ -42,10 +45,15 @@ def load_main_data():
         if 'ai_topic' in df.columns:
             df['ai_topic'] = df['ai_topic'].fillna('Άγνωστο Θέμα').astype(str).replace('nan', 'Άγνωστο Θέμα')
         
-        if 'date' in df.columns:
-            # ΜΑΓΕΙΑ: Το dayfirst=True λέει στην Python να διαβάζει Ευρωπαϊκές ημερομηνίες!
+        # --- ΑΠΟΛΥΤΟΣ ΚΑΘΑΡΙΣΜΟΣ ΕΤΟΥΣ ---
+        # ΠΡΩΤΑ κοιτάμε αν υπάρχει έτοιμη η στήλη 'year' από τα δεδομένα σου!
+        if 'year' in df.columns:
+            df['year_val'] = pd.to_numeric(df['year'], errors='coerce').fillna(0)
+        elif 'date' in df.columns:
             df['date'] = pd.to_datetime(df['date'], dayfirst=True, errors='coerce')
-            df['year_val'] = df['date'].dt.year.fillna(0)
+            df['year_val'] = df['date'].dt.year.fillna(0) 
+        else:
+            df['year_val'] = 0
             
         return df
     except Exception as e:
@@ -63,8 +71,10 @@ if df_main.empty:
 st.sidebar.header("🎛️ Φίλτρα Ανάλυσης")
 st.sidebar.markdown("Προσάρμοσε τα δεδομένα σε πραγματικό χρόνο:")
 
-available_countries = sorted(df_main['country'].unique().tolist())
-selected_countries = st.sidebar.multiselect("Επιλογή Χώρας:", available_countries, default=available_countries)
+available_countries = sorted(df_main[df_main['country'] != 'ΑΓΝΩΣΤΗ']['country'].unique().tolist())
+if 'ΑΓΝΩΣΤΗ' in df_main['country'].unique():
+    available_countries.append('ΑΓΝΩΣΤΗ')
+selected_countries = st.sidebar.multiselect("Επιλογή Χώρας:", available_countries, default=[c for c in available_countries if c != 'ΑΓΝΩΣΤΗ'])
 
 valid_years = df_main[df_main['year_val'] > 0]['year_val']
 min_year = int(valid_years.min()) if not valid_years.empty else 1821
@@ -119,7 +129,6 @@ with tab_overview:
     
     st.divider()
     
-    # ΝΕΟ: Πανοραμικό Διάγραμμα Όγκου Δημοσιεύσεων
     st.subheader("📈 Διαχρονική Εξέλιξη Όγκου Δημοσιεύσεων")
     if not df_filtered.empty:
         df_vol = df_filtered[df_filtered['year_val'] > 0].groupby(['year_val', 'country']).size().reset_index(name='count')
