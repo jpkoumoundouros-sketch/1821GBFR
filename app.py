@@ -29,54 +29,31 @@ def load_main_data():
                 low_memory=False, encoding='utf-8-sig', on_bad_lines='skip'
             )
 
-        df.columns = df.columns.str.lower().str.strip()
+        return df  # RAW - no processing yet
 
-        if 'ai_relevance' in df.columns:
-            df = df[
-                df['ai_relevance']
-                .astype(str).str.lower().str.strip()
-                .str.replace('_', '', regex=False)
-                == 'directlyrelevant'
-            ].copy()
-
-        if 'year' in df.columns:
-            df['year'] = pd.to_numeric(df['year'], errors='coerce').astype('Int64')
-
-        if 'date' in df.columns:
-            df['date_clean'] = df['date'].astype(str).str.replace(
-                r'^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+',
-                '', regex=True
-            )
-            df['date_parsed'] = pd.to_datetime(
-                df['date_clean'], format='%d %B %Y', errors='coerce'
-            )
-            mask = df['date_parsed'].isna()
-            df.loc[mask, 'date_parsed'] = pd.to_datetime(
-                df.loc[mask, 'date'], errors='coerce'
-            )
-            df.drop(columns=['date_clean'], inplace=True)
-
-        return df
-
-    except FileNotFoundError:
-        st.error("Zip file not found.")
-        return pd.DataFrame()
     except Exception as e:
         st.error(f"Load error: {e}")
         return pd.DataFrame()
 
 
 def main():
-    st.set_page_config(page_title="Greek Revolution Press Dashboard", layout="wide")
+    st.set_page_config(page_title="Debug", layout="wide")
 
     df = load_main_data()
-
     if df.empty:
         st.stop()
 
-    st.write("Rows after filter:", len(df))
-    st.write("ai_relevance values:", df['ai_relevance'].value_counts().to_dict())
-    st.write("Columns found:", list(df.columns))
+    st.write("Total rows raw:", len(df))
+    st.write("Num columns:", len(df.columns))
+    st.write("First 25 column names:", list(df.columns[:25]))
+    st.write("First 5 column repr:", [repr(c) for c in df.columns[:5]])
+
+    rel_cols = [c for c in df.columns if 'relev' in str(c).lower()]
+    st.write("Relevance-like columns:", rel_cols)
+
+    if rel_cols:
+        col = rel_cols[0]
+        st.write(f"Value counts of '{col}':", df[col].value_counts().to_dict())
 
 
 if __name__ == "__main__":
