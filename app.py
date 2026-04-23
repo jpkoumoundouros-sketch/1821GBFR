@@ -70,7 +70,8 @@ def load_main_data():
         # Βήμα 4: Απορρίπτουμε εντελώς παράλογα έτη (π.χ. 1899)
         df.loc[(df['year_val'] < 1821) | (df['year_val'] > 1832), 'year_val'] = 0
             
-        return df    
+        return df
+        
         except Exception as e:
         st.error(f"Σφάλμα φόρτωσης: {e}")
         return pd.DataFrame()
