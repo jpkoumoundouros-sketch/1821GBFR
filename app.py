@@ -32,7 +32,9 @@ def load_main_data():
             df = df[df['ai_relevance'].astype(str).str.lower().str.strip() == 'directly_relevant'].copy()
         
         if 'country' in df.columns:
-            df['country'] = df['country'].astype(str).str.upper().replace('NAN', 'ΑΓΝΩΣΤΗ')
+            # Τα κάνουμε όλα ΚΕΦΑΛΑΙΑ και μετατρέπουμε το UK σε GB για ομοιομορφία
+            df['country'] = df['country'].astype(str).str.strip().str.upper()
+            df['country'] = df['country'].replace({'UK': 'GB', 'NAN': 'ΑΓΝΩΣΤΗ'})
             
         if 'ai_stance' in df.columns:
             df['ai_stance'] = df['ai_stance'].fillna('Άγνωστη Στάση').astype(str).replace('nan', 'Άγνωστη Στάση')
@@ -41,8 +43,9 @@ def load_main_data():
             df['ai_topic'] = df['ai_topic'].fillna('Άγνωστο Θέμα').astype(str).replace('nan', 'Άγνωστο Θέμα')
         
         if 'date' in df.columns:
-            df['date'] = pd.to_datetime(df['date'], errors='coerce')
-            df['year_val'] = df['date'].dt.year.fillna(0) 
+            # ΜΑΓΕΙΑ: Το dayfirst=True λέει στην Python να διαβάζει Ευρωπαϊκές ημερομηνίες!
+            df['date'] = pd.to_datetime(df['date'], dayfirst=True, errors='coerce')
+            df['year_val'] = df['date'].dt.year.fillna(0)
             
         return df
     except Exception as e:
