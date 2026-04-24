@@ -1,5 +1,9 @@
-```python?code_reference&code_event_index=1
+import streamlit as st
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import zipfile
+import io
 df = pd.DataFrame()
 print("Low memory test.")
 
@@ -304,4 +308,4 @@ with t5:
     
     if chart_p: col_a.plotly_chart(chart_p, use_container_width=True)
     if chart_l: col_b.plotly_chart(chart_l, use_container_width=True)
-```
+
