@@ -12,25 +12,65 @@ st.set_page_config(page_title="Thesis Dashboard - 1821 Info Flows", page_icon="�
 # ==========================================
 # 📚 ΛΕΞΙΚΑ ΚΑΝΟΝΙΚΟΠΟΙΗΣΗΣ ΟΝΤΟΤΗΤΩΝ (NER)
 # ==========================================
+
 PERSON_ALIASES = {
-    'Ibrahim Pasha': ['ibrahim', 'ibrahim pacha', 'ibrahim pasha', 'ibrahim pascha', 'pacha of egypt'],
-    'Theodoros Kolokotronis': ['kolokotronis', 'colocotroni', 'colocotronis', 'kolokotroni'],
-    'Sultan Mahmud II': ['mahmud', 'mahmoud', 'sultan', 'grand signior', 'mahmud ii'],
-    'Lord Byron': ['byron', 'lord byron'],
-    'Ioannis Kapodistrias': ['capodistrias', 'capo d\'istria', 'kapodistrias', 'count capodistrias'],
-    'Admiral Codrington': ['codrington', 'edward codrington', 'admiral codrington'],
-    'Reshid Pasha (Kiutahi)': ['reshid', 'kiutahi', 'redschid', 'redschid pacha'],
-    'Alexander Ypsilantis': ['ypsilanti', 'ypsilantis', 'hypsilantes']
+    'Ibrahim Pasha': ['ibrahim-pacha', 'ibrahim', 'ibrahim pacha', 'ibrahim-pacha', 'pacha of egypt', 'pacha', 'ibrahim pasha', 'ibrahim pascha'],
+    'Ioannis Kapodistrias': ["count capo d'istria", "count capo d'istrias", "capo d'istria", "capo d'istrias", "comte capo-d'istria", "comte capo-d'istrias", 'president of greece', 'president', 'kapodistrias'],
+    'Lord Cochrane (Thomas Cochrane)': ['lord cochrane', 'cochrane', '["lord cochrane"]', 'thomas cochrane'],
+    'Sultan Mahmud II': ['sultan', 'mahmoud', 'le sultan', 'grand-seigneur', 'mahmud', 'mahmud ii'],
+    'Lord Byron': ['lord byron', 'byron'],
+    'Capitan Pasha (Khosref)': ['capitan-pacha', 'capitan pacha'],
+    'Andreas Miaoulis': ['miaulis', 'amiral miaulis', 'miaoulis', 'admiral miaulis'],
+    'Theodoros Kolokotronis': ['colocotroni', 'kolokotronis', 'kolokotroni', 'colocotronis'],
+    'Alexander / Demetrios Ypsilantis': ['ypsilanti', 'prince ypsilanti', 'démétrius ypsilanti', 'ypsilantis'],
+    'General Richard Church': ['general church', 'général church', 'church', 'richard church'],
+    'Jean-Gabriel Eynard': ['m. eynard', 'eynard'],
+    'Reshid Pasha (Kiutahi)': ['reschid-pacha', 'reshid', 'kiutahi'],
+    'Charles Fabvier': ['colonel fabvier', 'fabvier', 'général fabvier'],
+    'Duke of Wellington': ['duke of wellington', 'wellington'],
+    'George Canning': ['canning', 'mr. canning', 'm. canning'],
+    'Stratford Canning': ['stratford canning', 'mr. stratford canning', 'm. stratford-canning'],
+    'Georgios Karaiskakis': ['karaiskaki', 'karaiskakis'],
+    'Alexandros Mavrokordatos': ['maurocordato', 'mavrocordato', 'prince mavrocordato'],
+    'Prince Otto of Bavaria': ['prince othon', 'prince otho', 'prince othon de bavière', 'roi de bavière', 'king of bavaria'],
+    'Emperor Alexander I': ['alexander', 'alexandre', 'empereur alexandre'],
+    'Emperor Nicholas I': ['emperor nicholas', 'nicholas', 'emperor of russia'],
+    'Prince Leopold of Saxe-Coburg': ['prince leopold', 'prince léopold', 'leopold'],
+    'Ali Pasha of Ioannina': ['ali-pacha', 'ali', 'ali pasha'],
+    'Odysseus Androutsos': ['odysseus', 'odyssée'],
+    'Reis Effendi': ['reis effendi', 'reis-effendi'],
+    'Lord Strangford': ['lord strangford', 'strangford'],
+    'Constantine Kanaris': ['canaris', 'kanaris']
 }
 
 LOC_ALIASES = {
-    'Missolonghi': ['missolonghi', 'mesolongi', 'missolongi', 'micsolonghi'],
-    'Navarino': ['navarino', 'navarin'],
-    'Constantinople': ['constantinople', 'istanbul', 'stamboul'],
+    'Greece': ['greece', 'grèce', '"greece"', '["greece"', '["greece"]', 'western greece', 'eastern greece'],
+    'Ottoman Empire (Turkey)': ['turkey', 'turquie', 'porte', 'ottoman empire'],
+    'Peloponnese (Morea)': ['morée', 'morea', 'péloponnèse', 'peloponnesus', 'peloponnese'],
+    'Russia': ['russia', 'russie'],
+    'Great Britain': ['london', 'londres', 'london', '["london"', 'england', 'angleterre', 'great britain', 'ireland'],
+    'France': ['france', 'paris', 'marseille', 'marseilles', 'toulon'],
+    'Missolonghi': ['missolonghi', 'mesolongi', 'missolongi'],
+    'Navarino': ['navarin', 'navarino'],
+    'Constantinople': ['constantinople', 'istanbul'],
+    'Egypt': ['egypt', 'égypte', 'egypte', 'alexandrie', 'alexandria'],
+    'Nafplion': ['napoli', 'napoli de romanie', 'napoli di romania', 'nafplion'],
+    'Crete (Candia)': ['candie', 'candia', 'crete'],
+    'Austria': ['austria', 'autriche', 'vienna', 'vienne'],
+    'Smyrna': ['smyrne', 'smyrna', 'izmir'],
     'Athens': ['athens', 'athènes'],
-    'Peloponnese': ['peloponnese', 'morea', 'morée', 'peloponnesus'],
-    'Smyrna': ['smyrna', 'izmir'],
-    'London': ['london', 'londres']
+    'Corfu': ['corfou', 'corfu'],
+    'Zante (Zakynthos)': ['zante', 'zakynthos'],
+    'Chios': ['scio', 'chios'],
+    'Psara': ['ipsara', 'psara'],
+    'Syros': ['syra', 'syros'],
+    'Tripolitsa': ['tripolitza', 'tripolizza', 'tripolitsa'],
+    'Danubian Principalities': ['moldavie', 'moldavia', 'valachie', 'wallachia', 'danube'],
+    'Aegean Sea (Archipelago)': ['archipel', 'archipelago', 'levant'],
+    'Spain': ['spain', 'espagne', 'madrid'],
+    'Italy': ['italy', 'italie', 'naples', 'rome', 'trieste'],
+    'Patras': ['patras'],
+    'Hydra': ['hydra']
 }
 
 def normalize_entities(entity_str, alias_dict):
