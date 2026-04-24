@@ -177,7 +177,9 @@ with t1:
     with c_bar:
         st.markdown("**Top 5 Κυρίαρχα Θέματα**")
         if 'ai_topic' in df_filt.columns:
-            df_top = df_filt['ai_topic'].value_counts().head(5).reset_index()
+            # 🎯 FIX: Αφαίρεση του 'Άγνωστο' από τα Top 5
+            valid_topics = df_filt[df_filt['ai_topic'] != 'Άγνωστο']
+            df_top = valid_topics['ai_topic'].value_counts().head(5).reset_index()
             df_top.columns = ['Θέμα', 'Άρθρα']
             fig_t = px.bar(df_top, x='Άρθρα', y='Θέμα', orientation='h', color_discrete_sequence=['#9b59b6'])
             fig_t.update_layout(yaxis={'categoryorder':'total ascending'}, margin=dict(t=10, b=10, l=10, r=10), height=300)
@@ -209,8 +211,10 @@ with t2:
 with t3:
     st.subheader("🧠 Εξέλιξη Κυρίαρχων Θεμάτων")
     if 'ai_topic' in df_filt.columns:
-        top_t = df_filt['ai_topic'].value_counts().nlargest(10).index
-        df_t = df_filt[df_filt['ai_topic'].isin(top_t)].groupby(['year_val', 'ai_topic']).size().reset_index(name='c')
+        # 🎯 FIX: Αφαίρεση του 'Άγνωστο' και από το μεγάλο Area Chart
+        valid_topics_time = df_filt[df_filt['ai_topic'] != 'Άγνωστο']
+        top_t = valid_topics_time['ai_topic'].value_counts().nlargest(10).index
+        df_t = valid_topics_time[valid_topics_time['ai_topic'].isin(top_t)].groupby(['year_val', 'ai_topic']).size().reset_index(name='c')
         st.plotly_chart(px.area(df_t, x='year_val', y='c', color='ai_topic'), use_container_width=True)
 
 with t4:
