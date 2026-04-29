@@ -10,6 +10,90 @@ import re
 st.set_page_config(page_title="Thesis Dashboard - 1821 Info Flows", page_icon="🏛️", layout="wide")
 
 # ==========================================
+# 🌍 ΛΕΞΙΚΟ ΠΟΛΥΓΛΩΣΣΙΚΟΥ UI (Internationalization)
+# ==========================================
+LANG_UI = {
+    'EL': {
+        'nav_title': "🏛️ Ο αγγλικός και ο γαλλικός Τύπος για την Ελληνική Επανάσταση, 1821-1832",
+        'active_corpus': "Ενεργό Corpus",
+        'filters_header': "🎛️ Φίλτρα",
+        'filter_country': "Χώρες:",
+        'filter_period': "Περίοδος:",
+        'tab_overview': "📊 Επισκόπηση",
+        'tab_press': "📰 Εκδοτικό Τοπίο",
+        'tab_topics': "🧠 Θεματολογία",
+        'tab_flows': "🌍 Ροές",
+        'tab_entities': "👥 Οντότητες",
+        'metric_articles': "Συνολικά Άρθρα",
+        'metric_papers': "Μοναδικοί Τίτλοι Εφημερίδων",
+        'ov_sub': "### 🔭 Επισκόπηση του Corpus",
+        'ov_relevance': "Αξιολόγηση Σχετικότητας (AI)",
+        'ov_country': "Κατανομή ανά Χώρα (Ενεργό)",
+        'ov_top_topics': "Top 5 Κυρίαρχα Θέματα",
+        'ov_timeline': "📈 Εξέλιξη Όγκου Δημοσιεύσεων (1821-1832)",
+        'press_sub': "📰 Πολιτική Γραμμή των 15 κυριότερων Εφημερίδων",
+        'topics_sub': "🧠 Εξέλιξη Κυρίαρχων Θεμάτων",
+        'flows_sub': "🌍 Ροές Ειδήσεων (Μόνο Βεβαιωμένες Ροές)",
+        'ent_sub': "👥 Ανάλυση Οντοτήτων",
+        'ent_top_p': "Top 20 Πρόσωπα",
+        'ent_top_l': "Top 20 Τοποθεσίες",
+        'unknown': "Άγνωστο"
+    },
+    'EN': {
+        'nav_title': "🏛️ British and French Press on the Greek Revolution, 1821-1832",
+        'active_corpus': "Active Corpus",
+        'filters_header': "🎛️ Filters",
+        'filter_country': "Countries:",
+        'filter_period': "Period:",
+        'tab_overview': "📊 Overview",
+        'tab_press': "📰 Publishing Landscape",
+        'tab_topics': "🧠 Topics",
+        'tab_flows': "🌍 Flows",
+        'tab_entities': "👥 Entities",
+        'metric_articles': "Total Articles",
+        'metric_papers': "Unique Newspaper Titles",
+        'ov_sub': "### 🔭 Corpus Overview",
+        'ov_relevance': "Relevance Assessment (AI)",
+        'ov_country': "Distribution by Country (Active)",
+        'ov_top_topics': "Top 5 Dominant Topics",
+        'ov_timeline': "📈 Publication Volume Evolution (1821-1832)",
+        'press_sub': "📰 Editorial Stance of Top 15 Newspapers",
+        'topics_sub': "🧠 Dominant Topics Evolution",
+        'flows_sub': "🌍 News Flows (Confirmed Origins)",
+        'ent_sub': "👥 Entity Analysis",
+        'ent_top_p': "Top 20 Persons",
+        'ent_top_l': "Top 20 Locations",
+        'unknown': "Unknown"
+    },
+    'FR': {
+        'nav_title': "🏛️ La presse britannique et française sur la Révolution grecque, 1821-1832",
+        'active_corpus': "Corpus Actif",
+        'filters_header': "🎛️ Filtres",
+        'filter_country': "Pays:",
+        'filter_period': "Période:",
+        'tab_overview': "📊 Aperçu",
+        'tab_press': "📰 Paysage éditorial",
+        'tab_topics': "🧠 Thématiques",
+        'tab_flows': "🌍 Flux",
+        'tab_entities': "👥 Entités",
+        'metric_articles': "Total des articles",
+        'metric_papers': "Titres de journaux uniques",
+        'ov_sub': "### 🔭 Aperçu du Corpus",
+        'ov_relevance': "Évaluation de la pertinence (IA)",
+        'ov_country': "Répartition par pays (Actif)",
+        'ov_top_topics': "Top 5 des thèmes dominants",
+        'ov_timeline': "📈 Évolution du volume des publications (1821-1832)",
+        'press_sub': "📰 Ligne politique des 15 principaux journaux",
+        'topics_sub': "🧠 Évolution des thèmes dominants",
+        'flows_sub': "🌍 Flux d'informations (Origines confirmées)",
+        'ent_sub': "👥 Analyse des entités",
+        'ent_top_p': "Top 20 Personnes",
+        'ent_top_l': "Top 20 Lieux",
+        'unknown': "Inconnu"
+    }
+}
+
+# ==========================================
 # 📚 ΛΕΞΙΚΑ ΚΑΝΟΝΙΚΟΠΟΙΗΣΗΣ ΟΝΤΟΤΗΤΩΝ (NER)
 # ==========================================
 PERSON_ALIASES = {
@@ -18,7 +102,6 @@ PERSON_ALIASES = {
     'Lord Cochrane': ['lord cochrane', 'cochrane', 'thomas cochrane', 'lords cochrane'],
     'Sultan Mahmud II': ['sultan', 'mahmoud', 'le sultan', 'grand-seigneur', 'mahmud', 'mahmud ii'],
     'Lord Byron': ['lord byron', 'byron'],
-    'Capitan Pasha': ['capitan-pacha', 'capitan pacha'],
     'Andreas Miaoulis': ['miaulis', 'amiral miaulis', 'admiral miaulis', 'miaoulis'],
     'Theodoros Kolokotronis': ['colocotroni', 'kolokotronis', 'kolokotroni', 'colocotronis'],
     'Alexander / Demetrios Ypsilantis': ['ypsilanti', 'prince ypsilanti', 'démétrius ypsilanti', 'ypsilantis', 'démétrius-ipsilanty'],
@@ -38,7 +121,7 @@ LOC_ALIASES = {
     'Ottoman Empire': ['turkey', 'turquie', 'porte', 'ottoman empire'],
     'Peloponnese (Morea)': ['morée', 'morea', 'pélopόννησος', 'peloponnesus', 'peloponnese', 'moree'],
     'Russia': ['russia', 'russie'],
-    'Great Britain': ['london', 'londres', 'england', 'angleterre', 'great britain', 'london'],
+    'Great Britain': ['london', 'londres', 'england', 'angleterre', 'great britain'],
     'France': ['france', 'paris', 'marseille', 'marseilles', 'toulon'],
     'Missolonghi': ['missolonghi', 'mesolongi', 'missolongi'],
     'Navarino': ['navarin', 'navarino'],
@@ -92,8 +175,7 @@ def load_thesis_data_v4():
 
         for col in ['ai_stance', 'ai_topic']:
             if col in df.columns:
-                df[col] = df[col].astype(str).fillna('Άγνωστο').replace(['nan', 'unknown', 'None'], 'Άγνωστο')
-                df.loc[df[col].str.contains('relevant', case=False, na=False), col] = 'Άγνωστο'
+                df[col] = df[col].astype(str).fillna('Unknown').replace(['nan', 'unknown', 'None'], 'Unknown')
 
         if 'country' in df.columns:
             df['country'] = df['country'].astype(str).str.strip().str.upper().replace({'UK': 'GB', 'UNITED KINGDOM': 'GB', 'FRANCE': 'FR'})
@@ -118,104 +200,112 @@ df_main, raw_relevance = load_thesis_data_v4()
 
 # --- SIDEBAR ---
 if not df_main.empty:
-    st.sidebar.header("🎛️ Φίλτρα")
+    st.sidebar.header("🌐 Language / Γλώσσα")
+    lang_choice = st.sidebar.selectbox("Select Language:", ["EL", "EN", "FR"])
+    ui = LANG_UI[lang_choice]
+
+    st.sidebar.divider()
+    st.sidebar.header(ui['filters_header'])
     countries = sorted(df_main['country'].unique())
-    sel_countries = st.sidebar.multiselect("Χώρες:", countries, default=countries)
+    sel_countries = st.sidebar.multiselect(ui['filter_country'], countries, default=countries)
     v_years = df_main['year_val']
-    sel_years = st.sidebar.slider("Περίοδος:", int(v_years.min()), int(v_years.max()), (int(v_years.min()), int(v_years.max())))
+    sel_years = st.sidebar.slider(ui['filter_period'], int(v_years.min()), int(v_years.max()), (int(v_years.min()), int(v_years.max())))
     df_filt = df_main[(df_main['country'].isin(sel_countries)) & (df_main['year_val'] >= sel_years[0]) & (df_main['year_val'] <= sel_years[1])]
 else:
     st.stop()
 
-# --- UI ---
-st.title("🏛️ Ο αγγλικός και ο γαλλικός Τύπος για την Ελληνική Επανάσταση, 1821-1832: Ψηφιακό Παράρτημα")
-st.markdown(f"**Ενεργό Corpus:** {len(df_filt):,} Άρθρα")
+# --- UI MAIN ---
+st.title(ui['nav_title'])
+st.markdown(f"**{ui['active_corpus']}:** {len(df_filt):,} {ui['metric_articles']}")
 st.divider()
 
-t1, t2, t3, t4, t5 = st.tabs(["📊 Επισκόπηση", "📰 Εκδοτικό Τοπίο", "🧠 Θεματολογία", "🌍 Ροές", "👥 Οντότητες"])
+t1, t2, t3, t4, t5 = st.tabs([ui['tab_overview'], ui['tab_press'], ui['tab_topics'], ui['tab_flows'], ui['tab_entities']])
 
 # ==========================================
-# ΚΑΡΤΕΛΑ 1: Η "ΠΛΟΥΣΙΑ" ΕΠΙΣΚΟΠΗΣΗ 🔭
+# ΚΑΡΤΕΛΑ 1: ΕΠΙΣΚΟΠΗΣΗ (CLEAN)
 # ==========================================
 with t1:
-    st.markdown("### 🔭  Επισκόπηση του Corpus")
+    st.markdown(ui['ov_sub'])
     
-    # 1η Γραμμή: Καθαρά Metrics
-    c1, c2 = st.columns(2)
-    c1.metric("Συνολικά Άρθρα", f"{len(df_filt):,}")
-    c2.metric("Μοναδικοί Τίτλοι Εφημερίδων", df_filt['newspaper_title'].nunique() if 'newspaper_title' in df_filt.columns else 0)
+    # Metrics - Μόνο Άρθρα και Εφημερίδες (2 στήλες)
+    c_m1, c_m2 = st.columns(2)
+    c_m1.metric(ui['metric_articles'], f"{len(df_filt):,}")
+    num_papers = df_filt['newspaper_title'].nunique() if 'newspaper_title' in df_filt.columns else 0
+    c_m2.metric(ui['metric_papers'], num_papers)
     
-    # 2η Γραμμή: 3 Στήλες (Η "Βιτρίνα")
+    st.divider()
+    
+    # Charts
     c_pie1, c_pie2, c_bar = st.columns(3)
     
     with c_pie1:
-        st.markdown("**Αξιολόγηση Σχετικότητας (AI)**")
+        st.markdown(f"**{ui['ov_relevance']}**")
         if not raw_relevance.empty:
             fig_p = px.pie(values=raw_relevance.values, names=raw_relevance.index, hole=0.4,
                            color_discrete_sequence=['#2ecc71', '#e74c3c', '#95a5a6'])
-            fig_p.update_traces(textposition='inside', textinfo='percent+label')
             fig_p.update_layout(showlegend=False, margin=dict(t=10, b=10, l=10, r=10), height=300)
             st.plotly_chart(fig_p, use_container_width=True)
             
     with c_pie2:
-        st.markdown("**Κατανομή ανά Χώρα (Ενεργό)**")
+        st.markdown(f"**{ui['ov_country']}**")
         df_c = df_filt['country'].value_counts().reset_index()
-        df_c.columns = ['Χώρα', 'Άρθρα']
-        fig_c = px.pie(df_c, values='Άρθρα', names='Χώρα', hole=0.4,
-                       color='Χώρα', color_discrete_map={'GB': '#1f77b4', 'FR': '#d62728'})
-        fig_c.update_traces(textposition='inside', textinfo='percent+label')
+        df_c.columns = ['Country', 'Count']
+        fig_c = px.pie(df_c, values='Count', names='Country', hole=0.4,
+                       color='Country', color_discrete_map={'GB': '#1f77b4', 'FR': '#d62728'})
         fig_c.update_layout(showlegend=False, margin=dict(t=10, b=10, l=10, r=10), height=300)
         st.plotly_chart(fig_c, use_container_width=True)
 
     with c_bar:
-        st.markdown("**Top 5 Κυρίαρχα Θέματα**")
+        st.markdown(f"**{ui['ov_top_topics']}**")
         if 'ai_topic' in df_filt.columns:
-            # 🎯 FIX: Αφαίρεση του 'Άγνωστο' από τα Top 5
-            valid_topics = df_filt[df_filt['ai_topic'] != 'Άγνωστο']
+            valid_topics = df_filt[~df_filt['ai_topic'].str.lower().isin(['unknown', 'άγνωστο', 'inconnu'])]
             df_top = valid_topics['ai_topic'].value_counts().head(5).reset_index()
-            df_top.columns = ['Θέμα', 'Άρθρα']
-            fig_t = px.bar(df_top, x='Άρθρα', y='Θέμα', orientation='h', color_discrete_sequence=['#9b59b6'])
+            df_top.columns = ['Topic', 'Count']
+            fig_t = px.bar(df_top, x='Count', y='Topic', orientation='h', color_discrete_sequence=['#9b59b6'])
             fig_t.update_layout(yaxis={'categoryorder':'total ascending'}, margin=dict(t=10, b=10, l=10, r=10), height=300)
             st.plotly_chart(fig_t, use_container_width=True)
             
     st.divider()
     
-    # 3η Γραμμή: Το μεγάλο Timeline
-    st.markdown("**📈 Εξέλιξη Όγκου Δημοσιεύσεων (1821-1832)**")
-    df_v = df_filt.groupby(['year_val', 'country']).size().reset_index(name='c')
-    fig_v = px.line(df_v, x='year_val', y='c', color='country', markers=True, 
+    st.markdown(f"**{ui['ov_timeline']}**")
+    df_v = df_filt.groupby(['year_val', 'country']).size().reset_index(name='count')
+    fig_v = px.line(df_v, x='year_val', y='count', color='country', markers=True, 
                     color_discrete_map={'GB': '#1f77b4', 'FR': '#d62728'})
-    fig_v.update_layout(height=450)
+    fig_v.update_layout(height=400)
     st.plotly_chart(fig_v, use_container_width=True)
 
 # ==========================================
-# ΥΠΟΛΟΙΠΕΣ ΚΑΡΤΕΛΕΣ
+# ΚΑΡΤΕΛΑ 2: ΕΚΔΟΤΙΚΟ ΤΟΠΙΟ
 # ==========================================
 with t2:
-    st.subheader("📰 Πολιτική Γραμμή των 15 κυριότερων Εφημερίδων")
+    st.subheader(ui['press_sub'])
     if 'newspaper_title' in df_filt.columns:
         df_temp = df_filt[df_filt['newspaper_title'].notna() & (df_filt['newspaper_title'] != '')]
         top_np = df_temp['newspaper_title'].value_counts().nlargest(15).index
         df_np = df_temp[df_temp['newspaper_title'].isin(top_np)].groupby(['newspaper_title', 'ai_stance']).size().reset_index(name='count')
         fig_np = px.bar(df_np, x='count', y='newspaper_title', color='ai_stance', orientation='h', height=600)
-        fig_np.update_yaxes(dtick=1, type='category', automargin=True)
         st.plotly_chart(fig_np, use_container_width=True)
 
+# ==========================================
+# ΚΑΡΤΕΛΑ 3: ΘΕΜΑΤΟΛΟΓΙΑ
+# ==========================================
 with t3:
-    st.subheader("🧠 Εξέλιξη Κυρίαρχων Θεμάτων")
+    st.subheader(ui['topics_sub'])
     if 'ai_topic' in df_filt.columns:
-        # 🎯 FIX: Αφαίρεση του 'Άγνωστο' και από το μεγάλο Area Chart
-        valid_topics_time = df_filt[df_filt['ai_topic'] != 'Άγνωστο']
+        valid_topics_time = df_filt[~df_filt['ai_topic'].str.lower().isin(['unknown', 'άγνωστο', 'inconnu'])]
         top_t = valid_topics_time['ai_topic'].value_counts().nlargest(10).index
-        df_t = valid_topics_time[valid_topics_time['ai_topic'].isin(top_t)].groupby(['year_val', 'ai_topic']).size().reset_index(name='c')
-        st.plotly_chart(px.area(df_t, x='year_val', y='c', color='ai_topic'), use_container_width=True)
+        df_t = valid_topics_time[valid_topics_time['ai_topic'].isin(top_t)].groupby(['year_val', 'ai_topic']).size().reset_index(name='count')
+        st.plotly_chart(px.area(df_t, x='year_val', y='count', color='ai_topic', height=500), use_container_width=True)
 
+# ==========================================
+# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ
+# ==========================================
 with t4:
-    st.subheader("🌍 Ροές Ειδήσεων (Μόνο Βεβαιωμένες Ροές)")
+    st.subheader(ui['flows_sub'])
     c_src = next((c for c in df_filt.columns if 'origin' in c), None)
     c_dst = next((c for c in df_filt.columns if 'pub' in c or 'place' in c), None)
     if c_src and c_dst:
-        bad_words = ['unknown', 'nan', 'none', 'άγνωστο', 'άγνωστη', '[]']
+        bad_words = ['unknown', 'nan', 'none', 'άγνωστο', 'άγνωστη', 'inconnu', '[]']
         f_df = df_filt.dropna(subset=[c_src, c_dst])
         f_df = f_df[(~f_df[c_src].astype(str).str.lower().isin(bad_words)) & (~f_df[c_dst].astype(str).str.lower().isin(bad_words))]
         if not f_df.empty:
@@ -223,25 +313,28 @@ with t4:
             nds = list(pd.concat([f_grp[c_src], f_grp[c_dst]]).unique())
             mapping = {n: i for i, n in enumerate(nds)}
             fig_s = go.Figure(go.Sankey(node=dict(label=nds, pad=15, thickness=20), link=dict(source=f_grp[c_src].map(mapping), target=f_grp[c_dst].map(mapping), value=f_grp['c'])))
-            fig_s.update_layout(height=600)
             st.plotly_chart(fig_s, use_container_width=True)
 
+# ==========================================
+# ΚΑΡΤΕΛΑ 5: ΟΝΤΟΤΗΤΕΣ (STAYS HERE)
+# ==========================================
 with t5:
-    st.subheader("👥 Ανάλυση Οντοτήτων")
+    st.subheader(ui['ent_sub'])
     col_a, col_b = st.columns(2)
+    
     def make_ner_chart(col_name, color, title):
         if col_name in df_filt.columns:
             data = df_filt[col_name].str.split(',').explode().str.strip().replace('', pd.NA).dropna()
             if not data.empty:
                 counts = data.value_counts().head(20).reset_index()
-                counts.columns = ['Οντότητα', 'Αναφορές']
-                fig = px.bar(counts, x='Αναφορές', y='Οντότητα', orientation='h', color_discrete_sequence=[color], height=700)
-                fig.update_yaxes(dtick=1, type='category', automargin=True)
-                fig.update_layout(title=title)
+                counts.columns = ['Entity', 'Count']
+                fig = px.bar(counts, x='Count', y='Entity', orientation='h', color_discrete_sequence=[color], height=700)
+                fig.update_layout(title=title, yaxis={'categoryorder':'total ascending'})
                 return fig
         return None
 
-    chart_p = make_ner_chart('entities_persons', "#1f77b4", "Top 20 Πρόσωπα")
-    chart_l = make_ner_chart('entities_locations', "#ff7f0e", "Top 20 Τοποθεσίες")
+    chart_p = make_ner_chart('entities_persons', "#1f77b4", ui['ent_top_p'])
+    chart_l = make_ner_chart('entities_locations', "#ff7f0e", ui['ent_top_l'])
+    
     if chart_p: col_a.plotly_chart(chart_p, use_container_width=True)
     if chart_l: col_b.plotly_chart(chart_l, use_container_width=True)
