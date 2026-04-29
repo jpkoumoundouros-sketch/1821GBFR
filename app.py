@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import zipfile
 import io
 import re
+import os
 
 # --- ΡΥΘΜΙΣΕΙΣ ΣΕΛΙΔΑΣ ---
 st.set_page_config(
@@ -109,7 +110,7 @@ LANG_UI = {
         'tab_waves': "🌊 Vagues d'information",
         'metric_articles': "Total des articles",
         'metric_papers': "Titres de journaux uniques",
-        'ov_sub': "### 🔭 Aperçu του Corpus",
+        'ov_sub': "### 🔭 Aperçu du Corpus",
         'ov_relevance': "Évaluation de la pertinence (IA)",
         'ov_country': "Répartition par pays (Actif)",
         'ov_top_topics': "Top 5 des thèmes dominants",
@@ -249,13 +250,22 @@ def load_news_wave_data():
         "Random origin sample 2000": "news_wave_origin_random_2000_v3.csv",
     }
     frames = []
+    missing_files = []
+
     for label, path in files.items():
-        try:
-            temp = pd.read_csv(path, encoding="utf-8-sig")
-            temp["event_label"] = label
-            frames.append(temp)
-        except Exception:
-            pass
+        if os.path.exists(path):
+            try:
+                temp = pd.read_csv(path, encoding="utf-8-sig", on_bad_lines='skip', low_memory=False)
+                temp["event_label"] = label
+                frames.append(temp)
+            except Exception as e:
+                st.error(f"Σφάλμα ανάγνωσης στο {path}: {e}")
+        else:
+            missing_files.append(path)
+    
+    if missing_files:
+        st.warning(f"Προσοχή: Τα παρακάτω αρχεία CSV δεν βρέθηκαν στον φάκελο:\n" + ", ".join(missing_files))
+    
     if frames:
         df_waves = pd.concat(frames, ignore_index=True)
         df_waves.columns = df_waves.columns.str.strip()
@@ -406,7 +416,7 @@ with t5:
     if chart_l: col_b.plotly_chart(chart_l, use_container_width=True)
 
 # ==========================================
-# ΚΑΡΤΕΛΑ 6: NEWS WAVES
+# ΚΑΡΤΕΛΑ 6: NEWS WAVES (AI DATA)
 # ==========================================
 with t6:
     st.subheader(ui['waves_sub'])
@@ -415,7 +425,7 @@ with t6:
     df_waves = load_news_wave_data()
 
     if df_waves.empty:
-        st.warning("No news-wave pilot data found.")
+        st.error("⚠️ No news-wave data could be loaded. Please check if the CSV files exist in the directory.")
     else:
         events = sorted(df_waves["event_label"].dropna().unique())
         selected_event = st.selectbox(ui['waves_select'], events)
@@ -424,8 +434,16 @@ with t6:
 
         c1, c2, c3 = st.columns(3)
         c1.metric(ui['waves_records'], f"{len(df_w):,}")
-        c2.metric(ui['waves_newspapers'], df_w["newspaper_title"].nunique() if "newspaper_title" in df_w.columns else "-")
-        c3.metric(ui['waves_origins'], df_w["news_origin_norm"].nunique() if "news_origin_norm" in df_w.columns else "-")
+        
+        if "newspaper_title" in df_w.columns:
+            c2.metric(ui['waves_newspapers'], df_w["newspaper_title"].nunique())
+        else:
+            c2.metric(ui['waves_newspapers'], "-")
+
+        if "news_origin_norm" in df_w.columns:
+            c3.metric(ui['waves_origins'], df_w["news_origin_norm"].nunique())
+        else:
+            c3.metric(ui['waves_origins'], "-")
 
         st.divider()
 
@@ -435,33 +453,73 @@ with t6:
                 temp = temp.replace({"": "Unknown", "nan": "Unknown", "None": "Unknown"})
                 counts = temp.value_counts().head(15).reset_index()
                 counts.columns = ["Category", "Count"]
-                fig = px.bar(counts, x="Count", y="Category", orientation="h", color_discrete_sequence=[color], title=title)
-                fig.update_layout(yaxis={'categoryorder': 'total ascending'}, height=420, margin=dict(t=50, b=20, l=10, r=10))
+
+                fig = px.bar(
+                    counts,
+                    x="Count",
+                    y="Category",
+                    orientation="h",
+                    color_discrete_sequence=[color],
+                    title=title
+                )
+                fig.update_layout(
+                    yaxis={'categoryorder': 'total ascending'},
+                    height=420,
+                    margin=dict(t=50, b=20, l=10, r=10)
+                )
                 return fig
             return None
 
         col_w1, col_w2 = st.columns(2)
+
         with col_w1:
             fig_r = simple_bar(df_w, "rumor_status", ui['waves_rumor'], "#3498db")
             if fig_r: st.plotly_chart(fig_r, use_container_width=True)
+
         with col_w2:
             fig_m = simple_bar(df_w, "transmission_medium", ui['waves_medium'], "#2ecc71")
             if fig_m: st.plotly_chart(fig_m, use_container_width=True)
 
         col_w3, col_w4 = st.columns(2)
+
         with col_w3:
             fig_f = simple_bar(df_w, "rhetorical_frame_primary", ui['waves_frame'], "#9b59b6")
             if fig_f: st.plotly_chart(fig_f, use_container_width=True)
+
         with col_w4:
             fig_t = simple_bar(df_w, "canonical_event_type", ui['waves_type'], "#e67e22")
             if fig_t: st.plotly_chart(fig_t, use_container_width=True)
 
         st.divider()
+
         fig_p = simple_bar(df_w, "event_phase", ui['waves_phase'], "#34495e")
-        if fig_p: st.plotly_chart(fig_p, use_container_width=True)
+        if fig_p:
+            st.plotly_chart(fig_p, use_container_width=True)
 
         st.divider()
+
         st.markdown(f"### {ui['waves_sample']}")
-        show_cols = ["newspaper_title", "date", "publication_place", "news_origin_norm", "rumor_status", "certainty_score", "transmission_medium", "transmission_formula", "rhetorical_frame_primary", "canonical_event_type", "event_phase", "source_criticism_note", "needs_review"]
+
+        show_cols = [
+            "newspaper_title",
+            "date",
+            "publication_place",
+            "news_origin_norm",
+            "rumor_status",
+            "certainty_score",
+            "transmission_medium",
+            "transmission_formula",
+            "rhetorical_frame_primary",
+            "canonical_event_type",
+            "event_phase",
+            "source_criticism_note",
+            "needs_review"
+        ]
+
         show_cols = [c for c in show_cols if c in df_w.columns]
-        st.dataframe(df_w[show_cols].head(100), use_container_width=True, hide_index=True)
+
+        st.dataframe(
+            df_w[show_cols].head(100),
+            use_container_width=True,
+            hide_index=True
+        )
