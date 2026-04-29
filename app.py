@@ -447,9 +447,12 @@ with t4:
                     colorscale='YlGnBu',
                     size=[10 + (a * 2) for a in node_adjacencies],
                     color=node_adjacencies,
-                    colorbar=dict(thickness=15, title='Node Connections', xanchor='left', titleside='right')
+                    colorbar=dict(
+                        thickness=15, 
+                        title=dict(text='Node Connections', side='right'), 
+                        xanchor='left'
+                    )
                 )
-            )
 
             fig_net = go.Figure(data=[edge_trace, node_trace],
                          layout=go.Layout(
