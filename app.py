@@ -7,14 +7,18 @@ import io
 import re
 
 # --- ΡΥΘΜΙΣΕΙΣ ΣΕΛΙΔΑΣ ---
-st.set_page_config(page_title="Thesis Dashboard - 1821 Info Flows", page_icon="🏛️", layout="wide")
+st.set_page_config(
+    page_title="1821GBFR | Greek Revolution Press Corpus",
+    page_icon="🏛️",
+    layout="wide"
+)
 
 # ==========================================
 # 🌍 ΛΕΞΙΚΟ ΠΟΛΥΓΛΩΣΣΙΚΟΥ UI (Internationalization)
 # ==========================================
 LANG_UI = {
     'EL': {
-        'nav_title': "🏛️ Ο αγγλικός και ο γαλλικός Τύπος για την Ελληνική Επανάσταση, 1821-1832",
+        'nav_title': "🏛️ 1821GBFR: Γαλλοβρετανικό Corpus Τύπου για την Ελληνική Επανάσταση, 1821–1832",
         'active_corpus': "Ενεργό Corpus",
         'filters_header': "🎛️ Φίλτρα",
         'filter_country': "Χώρες:",
@@ -24,6 +28,7 @@ LANG_UI = {
         'tab_topics': "🧠 Θεματολογία",
         'tab_flows': "🌍 Ροές",
         'tab_entities': "👥 Οντότητες",
+        'tab_waves': "🌊 Κύματα Ειδήσεων",
         'metric_articles': "Συνολικά Άρθρα",
         'metric_papers': "Μοναδικοί Τίτλοι Εφημερίδων",
         'ov_sub': "### 🔭 Επισκόπηση του Corpus",
@@ -37,10 +42,22 @@ LANG_UI = {
         'ent_sub': "👥 Ανάλυση Οντοτήτων",
         'ent_top_p': "Top 20 Πρόσωπα",
         'ent_top_l': "Top 20 Τοποθεσίες",
+        'waves_sub': "🌊 Ανάλυση Ειδησεογραφικών Κυμάτων",
+        'waves_note': "Η ανάλυση βασίζεται σε AI-assisted annotation εγγραφών με τεκμηριωμένο news_origin_norm. Τα αποτελέσματα είναι πειραματικά και προορίζονται για διερευνητική χρήση.",
+        'waves_select': "Επιλογή συνόλου:",
+        'waves_records': "Εγγραφές",
+        'waves_newspapers': "Εφημερίδες",
+        'waves_origins': "Προελεύσεις Ειδήσεων",
+        'waves_rumor': "Κατάσταση Πληροφορίας",
+        'waves_medium': "Μέσο Μετάδοσης",
+        'waves_frame': "Ρητορικό Πλαίσιο",
+        'waves_type': "Τύπος Γεγονότος",
+        'waves_phase': "Φάση Ειδησεογραφικού Κύματος",
+        'waves_sample': "Δείγμα εγγραφών",
         'unknown': "Άγνωστο"
     },
     'EN': {
-        'nav_title': "🏛️ British and French Press on the Greek Revolution, 1821-1832",
+        'nav_title': "🏛️ 1821GBFR: Franco-British Press Corpus on the Greek Revolution, 1821–1832",
         'active_corpus': "Active Corpus",
         'filters_header': "🎛️ Filters",
         'filter_country': "Countries:",
@@ -50,6 +67,7 @@ LANG_UI = {
         'tab_topics': "🧠 Topics",
         'tab_flows': "🌍 Flows",
         'tab_entities': "👥 Entities",
+        'tab_waves': "🌊 News Waves",
         'metric_articles': "Total Articles",
         'metric_papers': "Unique Newspaper Titles",
         'ov_sub': "### 🔭 Corpus Overview",
@@ -63,10 +81,22 @@ LANG_UI = {
         'ent_sub': "👥 Entity Analysis",
         'ent_top_p': "Top 20 Persons",
         'ent_top_l': "Top 20 Locations",
+        'waves_sub': "🌊 News-Wave Analysis",
+        'waves_note': "This analysis is based on AI-assisted annotation of records with documented news_origin_norm. Results are experimental and intended for exploratory use.",
+        'waves_select': "Select dataset:",
+        'waves_records': "Records",
+        'waves_newspapers': "Newspapers",
+        'waves_origins': "News Origins",
+        'waves_rumor': "Information Status",
+        'waves_medium': "Transmission Medium",
+        'waves_frame': "Rhetorical Frame",
+        'waves_type': "Event Type",
+        'waves_phase': "News-Wave Phase",
+        'waves_sample': "Sample records",
         'unknown': "Unknown"
     },
     'FR': {
-        'nav_title': "🏛️ La presse britannique et française sur la Révolution grecque, 1821-1832",
+        'nav_title': "🏛️ 1821GBFR : Corpus franco-britannique de presse sur la Révolution grecque, 1821–1832",
         'active_corpus': "Corpus Actif",
         'filters_header': "🎛️ Filtres",
         'filter_country': "Pays:",
@@ -76,9 +106,10 @@ LANG_UI = {
         'tab_topics': "🧠 Thématiques",
         'tab_flows': "🌍 Flux",
         'tab_entities': "👥 Entités",
+        'tab_waves': "🌊 Vagues d'information",
         'metric_articles': "Total des articles",
         'metric_papers': "Titres de journaux uniques",
-        'ov_sub': "### 🔭 Aperçu du Corpus",
+        'ov_sub': "### 🔭 Aperçu του Corpus",
         'ov_relevance': "Évaluation de la pertinence (IA)",
         'ov_country': "Répartition par pays (Actif)",
         'ov_top_topics': "Top 5 des thèmes dominants",
@@ -89,12 +120,24 @@ LANG_UI = {
         'ent_sub': "👥 Analyse des entités",
         'ent_top_p': "Top 20 Personnes",
         'ent_top_l': "Top 20 Lieux",
+        'waves_sub': "🌊 Analyse des vagues d'information",
+        'waves_note': "Cette analyse repose sur une annotation assistée par IA des entrées disposant d’un news_origin_norm documenté. Les résultats sont expérimentaux et destinés à un usage exploratoire.",
+        'waves_select': "Choisir un ensemble:",
+        'waves_records': "Entrées",
+        'waves_newspapers': "Journaux",
+        'waves_origins': "Origines de l'information",
+        'waves_rumor': "Statut de l'information",
+        'waves_medium': "Moyen de transmission",
+        'waves_frame': "Cadre rhétorique",
+        'waves_type': "Type d'événement",
+        'waves_phase': "Phase de la vague d'information",
+        'waves_sample': "Exemples d'entrées",
         'unknown': "Inconnu"
     }
 }
 
 # ==========================================
-# 📚 ΛΕΞΙΚΑ ΚΑΝΟΝΙΚΟΠΟΙΗΣΗΣ ΟΝΤΟΤΗΤΩΝ (NER)
+# 📚 NORMALIZATION DICTIONARIES (NER)
 # ==========================================
 PERSON_ALIASES = {
     'Ibrahim Pasha': ['ibrahim-pacha', 'ibrahim', 'ibrahim pacha', 'pacha of egypt', 'pacha', 'ibrahim pasha', 'ibrahim pascha', 'i-brahim pacha', 'ibrahian-pacha', 'ibrahim-packa'],
@@ -152,10 +195,11 @@ def normalize_entities(entity_str, alias_dict):
             cleaned.append(val.title())
     return ", ".join(sorted(list(set(cleaned))))
 
-# --- ΣΥΝΑΡΤΗΣΕΙΣ ΦΟΡΤΩΣΗΣ ΔΕΔΟΜΕΝΩΝ ---
+# --- LOAD DATA FUNCTIONS ---
 @st.cache_data
 def load_thesis_data_v4():
     try:
+        # Load the reclassified final dataset
         with zipfile.ZipFile("THESIS_RECLASSIFIED_FINAL.csv.zip", 'r') as z:
             csv_files = [name for name in z.namelist() if not name.startswith('__MACOSX') and name.endswith('.csv')]
             if not csv_files: return pd.DataFrame(), pd.Series()
@@ -193,9 +237,32 @@ def load_thesis_data_v4():
             
         return df, raw_relevance
     except Exception as e:
-        st.error(f"Σφάλμα: {e}")
+        st.error(f"Error loading main data: {e}")
         return pd.DataFrame(), pd.Series()
 
+@st.cache_data
+def load_news_wave_data():
+    files = {
+        "Chios 1822": "news_wave_chios_1822_v3.csv",
+        "Missolonghi 1826": "news_wave_missolonghi_1826_v3.csv",
+        "Navarino 1827": "news_wave_navarino_1827_v3.csv",
+        "Random origin sample 2000": "news_wave_origin_random_2000_v3.csv",
+    }
+    frames = []
+    for label, path in files.items():
+        try:
+            temp = pd.read_csv(path, encoding="utf-8-sig")
+            temp["event_label"] = label
+            frames.append(temp)
+        except Exception:
+            pass
+    if frames:
+        df_waves = pd.concat(frames, ignore_index=True)
+        df_waves.columns = df_waves.columns.str.strip()
+        return df_waves
+    return pd.DataFrame()
+
+# Initial Data Load
 df_main, raw_relevance = load_thesis_data_v4()
 
 # --- SIDEBAR ---
@@ -214,20 +281,25 @@ if not df_main.empty:
 else:
     st.stop()
 
-# --- UI MAIN ---
+# --- MAIN UI ---
 st.title(ui['nav_title'])
 st.markdown(f"**{ui['active_corpus']}:** {len(df_filt):,} {ui['metric_articles']}")
 st.divider()
 
-t1, t2, t3, t4, t5 = st.tabs([ui['tab_overview'], ui['tab_press'], ui['tab_topics'], ui['tab_flows'], ui['tab_entities']])
+t1, t2, t3, t4, t5, t6 = st.tabs([
+    ui['tab_overview'], 
+    ui['tab_press'], 
+    ui['tab_topics'], 
+    ui['tab_flows'], 
+    ui['tab_entities'], 
+    ui['tab_waves']
+])
 
 # ==========================================
-# ΚΑΡΤΕΛΑ 1: ΕΠΙΣΚΟΠΗΣΗ (CLEAN)
+# ΚΑΡΤΕΛΑ 1: ΕΠΙΣΚΟΠΗΣΗ
 # ==========================================
 with t1:
     st.markdown(ui['ov_sub'])
-    
-    # Metrics - Μόνο Άρθρα και Εφημερίδες (2 στήλες)
     c_m1, c_m2 = st.columns(2)
     c_m1.metric(ui['metric_articles'], f"{len(df_filt):,}")
     num_papers = df_filt['newspaper_title'].nunique() if 'newspaper_title' in df_filt.columns else 0
@@ -235,9 +307,7 @@ with t1:
     
     st.divider()
     
-    # Charts
     c_pie1, c_pie2, c_bar = st.columns(3)
-    
     with c_pie1:
         st.markdown(f"**{ui['ov_relevance']}**")
         if not raw_relevance.empty:
@@ -266,7 +336,6 @@ with t1:
             st.plotly_chart(fig_t, use_container_width=True)
             
     st.divider()
-    
     st.markdown(f"**{ui['ov_timeline']}**")
     df_v = df_filt.groupby(['year_val', 'country']).size().reset_index(name='count')
     fig_v = px.line(df_v, x='year_val', y='count', color='country', markers=True, 
@@ -316,12 +385,11 @@ with t4:
             st.plotly_chart(fig_s, use_container_width=True)
 
 # ==========================================
-# ΚΑΡΤΕΛΑ 5: ΟΝΤΟΤΗΤΕΣ (STAYS HERE)
+# ΚΑΡΤΕΛΑ 5: ΟΝΤΟΤΗΤΕΣ
 # ==========================================
 with t5:
     st.subheader(ui['ent_sub'])
     col_a, col_b = st.columns(2)
-    
     def make_ner_chart(col_name, color, title):
         if col_name in df_filt.columns:
             data = df_filt[col_name].str.split(',').explode().str.strip().replace('', pd.NA).dropna()
@@ -332,9 +400,68 @@ with t5:
                 fig.update_layout(title=title, yaxis={'categoryorder':'total ascending'})
                 return fig
         return None
-
     chart_p = make_ner_chart('entities_persons', "#1f77b4", ui['ent_top_p'])
     chart_l = make_ner_chart('entities_locations', "#ff7f0e", ui['ent_top_l'])
-    
     if chart_p: col_a.plotly_chart(chart_p, use_container_width=True)
     if chart_l: col_b.plotly_chart(chart_l, use_container_width=True)
+
+# ==========================================
+# ΚΑΡΤΕΛΑ 6: NEWS WAVES
+# ==========================================
+with t6:
+    st.subheader(ui['waves_sub'])
+    st.info(ui['waves_note'])
+
+    df_waves = load_news_wave_data()
+
+    if df_waves.empty:
+        st.warning("No news-wave pilot data found.")
+    else:
+        events = sorted(df_waves["event_label"].dropna().unique())
+        selected_event = st.selectbox(ui['waves_select'], events)
+
+        df_w = df_waves[df_waves["event_label"] == selected_event].copy()
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric(ui['waves_records'], f"{len(df_w):,}")
+        c2.metric(ui['waves_newspapers'], df_w["newspaper_title"].nunique() if "newspaper_title" in df_w.columns else "-")
+        c3.metric(ui['waves_origins'], df_w["news_origin_norm"].nunique() if "news_origin_norm" in df_w.columns else "-")
+
+        st.divider()
+
+        def simple_bar(dataframe, column, title, color):
+            if column in dataframe.columns:
+                temp = dataframe[column].fillna("Unknown").astype(str).str.strip()
+                temp = temp.replace({"": "Unknown", "nan": "Unknown", "None": "Unknown"})
+                counts = temp.value_counts().head(15).reset_index()
+                counts.columns = ["Category", "Count"]
+                fig = px.bar(counts, x="Count", y="Category", orientation="h", color_discrete_sequence=[color], title=title)
+                fig.update_layout(yaxis={'categoryorder': 'total ascending'}, height=420, margin=dict(t=50, b=20, l=10, r=10))
+                return fig
+            return None
+
+        col_w1, col_w2 = st.columns(2)
+        with col_w1:
+            fig_r = simple_bar(df_w, "rumor_status", ui['waves_rumor'], "#3498db")
+            if fig_r: st.plotly_chart(fig_r, use_container_width=True)
+        with col_w2:
+            fig_m = simple_bar(df_w, "transmission_medium", ui['waves_medium'], "#2ecc71")
+            if fig_m: st.plotly_chart(fig_m, use_container_width=True)
+
+        col_w3, col_w4 = st.columns(2)
+        with col_w3:
+            fig_f = simple_bar(df_w, "rhetorical_frame_primary", ui['waves_frame'], "#9b59b6")
+            if fig_f: st.plotly_chart(fig_f, use_container_width=True)
+        with col_w4:
+            fig_t = simple_bar(df_w, "canonical_event_type", ui['waves_type'], "#e67e22")
+            if fig_t: st.plotly_chart(fig_t, use_container_width=True)
+
+        st.divider()
+        fig_p = simple_bar(df_w, "event_phase", ui['waves_phase'], "#34495e")
+        if fig_p: st.plotly_chart(fig_p, use_container_width=True)
+
+        st.divider()
+        st.markdown(f"### {ui['waves_sample']}")
+        show_cols = ["newspaper_title", "date", "publication_place", "news_origin_norm", "rumor_status", "certainty_score", "transmission_medium", "transmission_formula", "rhetorical_frame_primary", "canonical_event_type", "event_phase", "source_criticism_note", "needs_review"]
+        show_cols = [c for c in show_cols if c in df_w.columns]
+        st.dataframe(df_w[show_cols].head(100), use_container_width=True, hide_index=True)
