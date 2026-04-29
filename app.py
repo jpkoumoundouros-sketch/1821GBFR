@@ -453,7 +453,7 @@ with t4:
                         xanchor='left'
                     )
                 )
-
+            )
             fig_net = go.Figure(data=[edge_trace, node_trace],
                          layout=go.Layout(
                             showlegend=False,
