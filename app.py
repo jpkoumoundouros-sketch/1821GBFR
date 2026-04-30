@@ -2,11 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import networkx as nx
 import zipfile
 import io
 import re
 import os
+
 # --- ΡΥΘΜΙΣΕΙΣ ΣΕΛΙΔΑΣ ---
 st.set_page_config(
     page_title="1821GBFR | Greek Revolution Press Corpus",
@@ -39,7 +39,7 @@ LANG_UI = {
         'ov_timeline': "📈 Εξέλιξη Όγκου Δημοσιεύσεων (1821-1832)",
         'press_sub': "📰 Πολιτική Γραμμή των 15 κυριότερων Εφημερίδων",
         'topics_sub': "🧠 Εξέλιξη Κυρίαρχων Θεμάτων",
-        'flows_sub': "🌍 Ροές Ειδήσεων και Δίκτυα (Βεβαιωμένες Ροές)",
+        'flows_sub': "🌍 Ροές Ειδήσεων (Βεβαιωμένες Ροές)",
         'ent_sub': "👥 Ανάλυση Οντοτήτων",
         'ent_top_p': "Top 20 Πρόσωπα",
         'ent_top_l': "Top 20 Τοποθεσίες",
@@ -66,7 +66,7 @@ LANG_UI = {
         'tab_overview': "📊 Overview",
         'tab_press': "📰 Publishing Landscape",
         'tab_topics': "🧠 Topics",
-        'tab_flows': "🌍 Flows & Networks",
+        'tab_flows': "🌍 Flows",
         'tab_entities': "👥 Entities",
         'tab_waves': "🌊 News Waves",
         'metric_articles': "Total Articles",
@@ -78,7 +78,7 @@ LANG_UI = {
         'ov_timeline': "📈 Publication Volume Evolution (1821-1832)",
         'press_sub': "📰 Editorial Stance of Top 15 Newspapers",
         'topics_sub': "🧠 Dominant Topics Evolution",
-        'flows_sub': "🌍 News Flows & Networks (Confirmed Origins)",
+        'flows_sub': "🌍 News Flows (Confirmed Origins)",
         'ent_sub': "👥 Entity Analysis",
         'ent_top_p': "Top 20 Persons",
         'ent_top_l': "Top 20 Locations",
@@ -105,7 +105,7 @@ LANG_UI = {
         'tab_overview': "📊 Aperçu",
         'tab_press': "📰 Paysage éditorial",
         'tab_topics': "🧠 Thématiques",
-        'tab_flows': "🌍 Flux & Réseaux",
+        'tab_flows': "🌍 Flux",
         'tab_entities': "👥 Entités",
         'tab_waves': "🌊 Vagues d'information",
         'metric_articles': "Total des articles",
@@ -117,7 +117,7 @@ LANG_UI = {
         'ov_timeline': "📈 Évolution du volume des publications (1821-1832)",
         'press_sub': "📰 Ligne politique des 15 principaux journaux",
         'topics_sub': "🧠 Évolution des thèmes dominants",
-        'flows_sub': "🌍 Flux d'informations et Réseaux",
+        'flows_sub': "🌍 Flux d'informations",
         'ent_sub': "👥 Analyse des entités",
         'ent_top_p': "Top 20 Personnes",
         'ent_top_l': "Top 20 Lieux",
@@ -376,7 +376,7 @@ with t3:
         st.plotly_chart(px.area(df_t, x='year_val', y='count', color='ai_topic', height=500), use_container_width=True)
 
 # ==========================================
-# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ & ΔΙΚΤΥΑ
+# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ (ΜΟΝΟ SANKEY)
 # ==========================================
 with t4:
     st.subheader(ui['flows_sub'])
@@ -390,79 +390,13 @@ with t4:
         
         if not f_df.empty:
             # 1. Sankey Diagram
-            st.markdown("**1. Sankey Flow (Information Volume)**")
+            st.markdown("**Sankey Flow (Information Volume)**")
             f_grp = f_df.groupby([c_src, c_dst]).size().reset_index(name='c').sort_values('c', ascending=False).head(40)
             nds = list(pd.concat([f_grp[c_src], f_grp[c_dst]]).unique())
             mapping = {n: i for i, n in enumerate(nds)}
             fig_s = go.Figure(go.Sankey(node=dict(label=nds, pad=15, thickness=20), link=dict(source=f_grp[c_src].map(mapping), target=f_grp[c_dst].map(mapping), value=f_grp['c'])))
             fig_s.update_layout(height=500)
             st.plotly_chart(fig_s, use_container_width=True)
-
-            st.divider()
-
-            # 2. Network Graph (NetworkX)
-            st.markdown("**2. Network Graph (Node Centrality)**")
-            G = nx.Graph()
-            weights = f_df.groupby([c_src, c_dst]).size().reset_index(name='weight')
-            
-            for _, row in weights.iterrows():
-                G.add_edge(row[c_src], row[c_dst], weight=row['weight'])
-
-            pos = nx.spring_layout(G, k=0.5, iterations=50)
-
-            edge_x, edge_y = [], []
-            for edge in G.edges():
-                x0, y0 = pos[edge[0]]
-                x1, y1 = pos[edge[1]]
-                edge_x.extend([x0, x1, None])
-                edge_y.extend([y0, y1, None])
-
-            edge_trace = go.Scatter(
-                x=edge_x, y=edge_y,
-                line=dict(width=1, color='#888'),
-                hoverinfo='none',
-                mode='lines'
-            )
-
-            node_x, node_y, node_adjacencies, node_text = [], [], [], []
-            for node in G.nodes():
-                x, y = pos[node]
-                node_x.append(x)
-                node_y.append(y)
-
-            for node, adjacencies in enumerate(G.adjacency()):
-                node_adjacencies.append(len(adjacencies[1]))
-                node_text.append(f'{adjacencies[0]} (# connections: {len(adjacencies[1])})')
-
-            node_trace = go.Scatter(
-                x=node_x, y=node_y,
-                mode='markers+text',
-                text=[node for node in G.nodes()],
-                textposition="top center",
-                hoverinfo='text',
-                hovertext=node_text,
-                marker=dict(
-                    showscale=True,
-                    colorscale='YlGnBu',
-                    size=[10 + (a * 2) for a in node_adjacencies],
-                    color=node_adjacencies,
-                    colorbar=dict(
-                        thickness=15, 
-                        title=dict(text='Node Connections', side='right'), 
-                        xanchor='left'
-                    )
-                )
-            )
-            fig_net = go.Figure(data=[edge_trace, node_trace],
-                         layout=go.Layout(
-                            showlegend=False,
-                            hovermode='closest',
-                            margin=dict(b=20,l=5,r=5,t=40),
-                            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                            height=600)
-                        )
-            st.plotly_chart(fig_net, use_container_width=True)
 
 # ==========================================
 # ΚΑΡΤΕΛΑ 5: ΟΝΤΟΤΗΤΕΣ
