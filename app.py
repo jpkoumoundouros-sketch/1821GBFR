@@ -7,7 +7,30 @@ import zipfile
 import io
 import re
 import os
+import base64
+from pathlib import Path
 
+def add_bg_from_local(image_file):
+    image_path = Path(image_file)
+    if image_path.exists():
+        encoded = base64.b64encode(image_path.read_bytes()).decode()
+        st.markdown(
+            f"""
+            <style>
+            .stApp {{
+                background-image:
+                    linear-gradient(rgba(255,255,255,0.88), rgba(255,255,255,0.88)),
+                    url("data:image/png;base64,{encoded}");
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+add_bg_from_local("background_map.png")
 # --- ΡΥΘΜΙΣΕΙΣ ΣΕΛΙΔΑΣ ---
 st.set_page_config(
     page_title="1821GBFR | Greek Revolution Press Corpus",
