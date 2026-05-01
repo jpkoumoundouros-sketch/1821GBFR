@@ -15,7 +15,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 @st.cache_data
 def load_main_data():
     try:
-        file_path = os.path.join(BASE_DIR, "THESIS_WITH_ORIENTATION.csv")
+        file_path = os.path.join(BASE_DIR, "THESIS_RECLASSIFIED_FINAL.csv.zip")
         df = pd.read_csv(file_path, low_memory=False)
         df['date'] = pd.to_datetime(df['date'], errors='coerce')
         return df
