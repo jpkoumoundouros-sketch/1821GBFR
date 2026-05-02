@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -27,7 +28,7 @@ LANG_UI = {
         'tab_overview': "📊 Επισκόπηση",
         'tab_press': "📰 Εκδοτικό Τοπίο",
         'tab_topics': "🧠 Θεματολογία",
-        'tab_flows': "🌍 Ροές",
+        'tab_flows': "🌍 Ροές & Χάρτης",
         'tab_entities': "👥 Οντότητες",
         'tab_waves': "🌊 Κύματα Ειδήσεων",
         'metric_articles': "Συνολικά Άρθρα",
@@ -39,7 +40,7 @@ LANG_UI = {
         'ov_timeline': "📈 Εξέλιξη Όγκου Δημοσιεύσεων (1821-1832)",
         'press_sub': "📰 Πολιτική Γραμμή των 15 κυριότερων Εφημερίδων",
         'topics_sub': "🧠 Εξέλιξη Κυρίαρχων Θεμάτων",
-        'flows_sub': "🌍 Ροές Ειδήσεων (Βεβαιωμένες Ροές)",
+        'flows_sub': "🌍 Ροές Ειδήσεων & Γεωχωρική Ανάλυση",
         'ent_sub': "👥 Ανάλυση Οντοτήτων",
         'ent_top_p': "Top 20 Πρόσωπα",
         'ent_top_l': "Top 20 Τοποθεσίες",
@@ -66,7 +67,7 @@ LANG_UI = {
         'tab_overview': "📊 Overview",
         'tab_press': "📰 Publishing Landscape",
         'tab_topics': "🧠 Topics",
-        'tab_flows': "🌍 Flows",
+        'tab_flows': "🌍 Flows & Map",
         'tab_entities': "👥 Entities",
         'tab_waves': "🌊 News Waves",
         'metric_articles': "Total Articles",
@@ -78,7 +79,7 @@ LANG_UI = {
         'ov_timeline': "📈 Publication Volume Evolution (1821-1832)",
         'press_sub': "📰 Editorial Stance of Top 15 Newspapers",
         'topics_sub': "🧠 Dominant Topics Evolution",
-        'flows_sub': "🌍 News Flows (Confirmed Origins)",
+        'flows_sub': "🌍 News Flows & Geospatial Map",
         'ent_sub': "👥 Entity Analysis",
         'ent_top_p': "Top 20 Persons",
         'ent_top_l': "Top 20 Locations",
@@ -105,7 +106,7 @@ LANG_UI = {
         'tab_overview': "📊 Aperçu",
         'tab_press': "📰 Paysage éditorial",
         'tab_topics': "🧠 Thématiques",
-        'tab_flows': "🌍 Flux",
+        'tab_flows': "🌍 Flux et Carte",
         'tab_entities': "👥 Entités",
         'tab_waves': "🌊 Vagues d'information",
         'metric_articles': "Total des articles",
@@ -117,7 +118,7 @@ LANG_UI = {
         'ov_timeline': "📈 Évolution du volume des publications (1821-1832)",
         'press_sub': "📰 Ligne politique des 15 principaux journaux",
         'topics_sub': "🧠 Évolution des thèmes dominants",
-        'flows_sub': "🌍 Flux d'informations",
+        'flows_sub': "🌍 Flux d'informations et Carte Géospatiale",
         'ent_sub': "👥 Analyse des entités",
         'ent_top_p': "Top 20 Personnes",
         'ent_top_l': "Top 20 Lieux",
@@ -136,6 +137,9 @@ LANG_UI = {
         'unknown': "Inconnu"
     }
 }
+
+# Εύρεση του φακέλου στον οποίο βρίσκεται το app.py
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ==========================================
 # 📚 NORMALIZATION DICTIONARIES (NER)
@@ -200,7 +204,7 @@ def normalize_entities(entity_str, alias_dict):
 @st.cache_data
 def load_thesis_data_v4():
     try:
-        with zipfile.ZipFile("THESIS_RECLASSIFIED_FINAL.csv.zip", 'r') as z:
+        with zipfile.ZipFile(os.path.join(BASE_DIR, "THESIS_RECLASSIFIED_FINAL.csv.zip"), 'r') as z:
             csv_files = [name for name in z.namelist() if not name.startswith('__MACOSX') and name.endswith('.csv')]
             if not csv_files: return pd.DataFrame(), pd.Series()
             with z.open(csv_files[0]) as f:
@@ -243,10 +247,10 @@ def load_thesis_data_v4():
 @st.cache_data
 def load_news_wave_data():
     files = {
-        "Chios 1822": "news_wave_chios_1822_v3.csv",
-        "Missolonghi 1826": "news_wave_missolonghi_1826_v3.csv",
-        "Navarino 1827": "news_wave_navarino_1827_v3.csv",
-        "Random origin sample 2000": "news_wave_origin_random_2000_v3.csv",
+        "Chios 1822": os.path.join(BASE_DIR, "news_wave_chios_1822_v3.csv"),
+        "Missolonghi 1826": os.path.join(BASE_DIR, "news_wave_missolonghi_1826_v3.csv"),
+        "Navarino 1827": os.path.join(BASE_DIR, "news_wave_navarino_1827_v3.csv"),
+        "Random origin sample 2000": os.path.join(BASE_DIR, "news_wave_origin_random_2000_v3.csv"),
     }
     frames = []
     missing_files = []
@@ -260,7 +264,7 @@ def load_news_wave_data():
             except Exception as e:
                 st.error(f"Σφάλμα ανάγνωσης στο {path}: {e}")
         else:
-            missing_files.append(path)
+            missing_files.append(os.path.basename(path))
     
     if missing_files:
         st.warning(f"Προσοχή: Τα παρακάτω αρχεία CSV δεν βρέθηκαν στον φάκελο:\n" + ", ".join(missing_files))
@@ -376,7 +380,7 @@ with t3:
         st.plotly_chart(px.area(df_t, x='year_val', y='count', color='ai_topic', height=500), use_container_width=True)
 
 # ==========================================
-# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ (ΜΟΝΟ SANKEY)
+# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ ΚΑΙ ΧΑΡΤΗΣ (SANKEY + FOLIUM HTML)
 # ==========================================
 with t4:
     st.subheader(ui['flows_sub'])
@@ -390,13 +394,27 @@ with t4:
         
         if not f_df.empty:
             # 1. Sankey Diagram
-            st.markdown("**Sankey Flow (Information Volume)**")
+            st.markdown("**1. Sankey Flow (Information Volume)**")
             f_grp = f_df.groupby([c_src, c_dst]).size().reset_index(name='c').sort_values('c', ascending=False).head(40)
             nds = list(pd.concat([f_grp[c_src], f_grp[c_dst]]).unique())
             mapping = {n: i for i, n in enumerate(nds)}
             fig_s = go.Figure(go.Sankey(node=dict(label=nds, pad=15, thickness=20), link=dict(source=f_grp[c_src].map(mapping), target=f_grp[c_dst].map(mapping), value=f_grp['c'])))
             fig_s.update_layout(height=500)
             st.plotly_chart(fig_s, use_container_width=True)
+
+            st.divider()
+
+            # 2. Interactive HTML Map (Folium AntPath)
+            st.markdown("**2. Γεωχωρικός Χάρτης Ροών (Animated AntPath Map)**")
+            map_path = os.path.join(BASE_DIR, "Interactive_Global_News_Map.html")
+            
+            if os.path.exists(map_path):
+                with open(map_path, "r", encoding="utf-8") as f:
+                    html_data = f.read()
+                # Ενσωμάτωση του έτοιμου χάρτη HTML απευθείας στο Streamlit
+                components.html(html_data, height=650, scrolling=False)
+            else:
+                st.info("⚠️ Το αρχείο 'Interactive_Global_News_Map.html' δεν βρέθηκε στον φάκελο. Βεβαιώσου ότι είναι αποθηκευμένο μαζί με το app.py.")
 
 # ==========================================
 # ΚΑΡΤΕΛΑ 5: ΟΝΤΟΤΗΤΕΣ
