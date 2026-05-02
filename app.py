@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -7,6 +6,7 @@ import zipfile
 import io
 import re
 import os
+import json
 
 # --- ΡΥΘΜΙΣΕΙΣ ΣΕΛΙΔΑΣ ---
 st.set_page_config(
@@ -14,6 +14,9 @@ st.set_page_config(
     page_icon="🏛️",
     layout="wide"
 )
+
+# Εύρεση του φακέλου στον οποίο βρίσκεται το app.py
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ==========================================
 # 🌍 ΛΕΞΙΚΟ ΠΟΛΥΓΛΩΣΣΙΚΟΥ UI (Internationalization)
@@ -138,9 +141,6 @@ LANG_UI = {
     }
 }
 
-# Εύρεση του φακέλου στον οποίο βρίσκεται το app.py
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 # ==========================================
 # 📚 NORMALIZATION DICTIONARIES (NER)
 # ==========================================
@@ -200,7 +200,7 @@ def normalize_entities(entity_str, alias_dict):
             cleaned.append(val.title())
     return ", ".join(sorted(list(set(cleaned))))
 
-# --- LOAD DATA FUNCTIONS ---
+# --- ΣΥΝΑΡΤΗΣΕΙΣ ΦΟΡΤΩΣΗΣ ΔΕΔΟΜΕΝΩΝ (ΜΕ BASE_DIR) ---
 @st.cache_data
 def load_thesis_data_v4():
     try:
@@ -245,38 +245,51 @@ def load_thesis_data_v4():
         return pd.DataFrame(), pd.Series()
 
 @st.cache_data
-def load_news_wave_data():
-    files = {
-        "Chios 1822": os.path.join(BASE_DIR, "news_wave_chios_1822_v3.csv"),
-        "Missolonghi 1826": os.path.join(BASE_DIR, "news_wave_missolonghi_1826_v3.csv"),
-        "Navarino 1827": os.path.join(BASE_DIR, "news_wave_navarino_1827_v3.csv"),
-        "Random origin sample 2000": os.path.join(BASE_DIR, "news_wave_origin_random_2000_v3.csv"),
-    }
-    frames = []
-    missing_files = []
+def load_network_data():
+    try:
+        file_path = os.path.join(BASE_DIR, "Palladio_Network_Data.csv")
+        df = pd.read_csv(file_path)
+        df[['Source_Lat', 'Source_Lon']] = df['Source_LatLon'].str.split(',', expand=True).astype(float)
+        df[['Target_Lat', 'Target_Lon']] = df['Target_LatLon'].str.split(',', expand=True).astype(float)
+        return df
+    except:
+        return pd.DataFrame()
 
-    for label, path in files.items():
-        if os.path.exists(path):
-            try:
-                temp = pd.read_csv(path, encoding="utf-8-sig", on_bad_lines='skip', low_memory=False)
-                temp["event_label"] = label
-                frames.append(temp)
-            except Exception as e:
-                st.error(f"Σφάλμα ανάγνωσης στο {path}: {e}")
-        else:
-            missing_files.append(os.path.basename(path))
-    
-    if missing_files:
-        st.warning(f"Προσοχή: Τα παρακάτω αρχεία CSV δεν βρέθηκαν στον φάκελο:\n" + ", ".join(missing_files))
-    
-    if frames:
-        df_waves = pd.concat(frames, ignore_index=True)
-        df_waves.columns = df_waves.columns.str.strip()
-        return df_waves
-    return pd.DataFrame()
+@st.cache_data
+def load_slim_data():
+    try:
+        file_path = os.path.join(BASE_DIR, "THESIS_SLIM_FOR_NOTEBOOKLM.csv")
+        df = pd.read_csv(file_path)
+        return df
+    except:
+        return pd.DataFrame()
 
-# Initial Data Load
+@st.cache_data
+def load_waves_data():
+    try:
+        file_path = os.path.join(BASE_DIR, "news_wave_streamlit_slim.csv")
+        df = pd.read_csv(file_path, low_memory=False)
+        return df
+    except:
+        return pd.DataFrame()
+
+@st.cache_data
+def load_waves_cards():
+    try:
+        file_path = os.path.join(BASE_DIR, "streamlit_news_wave_cards.json")
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        return []
+
+# ==========================================
+# 🚀 ΦΟΡΤΩΣΗ ΟΛΩΝ ΤΩΝ ΔΕΔΟΜΕΝΩΝ (Ορίζονται ΕΔΩ)
+# ==========================================
 df_main, raw_relevance = load_thesis_data_v4()
+df_network = load_network_data()
+df_slim = load_slim_data()
+df_waves = load_waves_data()
+wave_cards = load_waves_cards()
 
 # --- SIDEBAR ---
 if not df_main.empty:
@@ -292,6 +305,7 @@ if not df_main.empty:
     sel_years = st.sidebar.slider(ui['filter_period'], int(v_years.min()), int(v_years.max()), (int(v_years.min()), int(v_years.max())))
     df_filt = df_main[(df_main['country'].isin(sel_countries)) & (df_main['year_val'] >= sel_years[0]) & (df_main['year_val'] <= sel_years[1])]
 else:
+    st.error("Δεν βρέθηκε το THESIS_RECLASSIFIED_FINAL.csv.zip. Ελέγξτε τον φάκελο.")
     st.stop()
 
 # --- MAIN UI ---
@@ -380,7 +394,7 @@ with t3:
         st.plotly_chart(px.area(df_t, x='year_val', y='count', color='ai_topic', height=500), use_container_width=True)
 
 # ==========================================
-# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ & ΧΑΡΤΗΣ (SANKEY + PLOTLY MAP)
+# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ & ΧΑΡΤΗΣ PLOTLY
 # ==========================================
 with t4:
     st.subheader(ui['flows_sub'])
@@ -404,17 +418,14 @@ with t4:
 
             st.divider()
 
-            # 2. Ελαφρύς Διαδραστικός Χάρτης με Plotly (Αντί για Folium)
+            # 2. Ελαφρύς Διαδραστικός Χάρτης με Plotly
             st.markdown("**2. Γεωχωρικός Χάρτης Ροών (Plotly Native)**")
             
-            # Φορτώνουμε τα δεδομένα του χάρτη (Palladio_Network_Data.csv)
             if not df_network.empty:
-                # Ομαδοποίηση των γραμμών για να μην κρασάρει ο browser
                 paris_lon, paris_lat = [], []
                 london_lon, london_lat = [], []
 
                 for i, row in df_network.iterrows():
-                    # Προσθέτουμε [Source, Target, None] για να ζωγραφιστεί η γραμμή και να "σπάσει" πριν την επόμενη
                     if row['Target_Label'] == 'Paris':
                         paris_lon.extend([row['Source_Lon'], row['Target_Lon'], None])
                         paris_lat.extend([row['Source_Lat'], row['Target_Lat'], None])
@@ -424,7 +435,6 @@ with t4:
 
                 fig_map = go.Figure()
 
-                # Προσθήκη όλων των κόκκινων γραμμών (Προς Παρίσι) ως ένα ενιαίο trace
                 if paris_lon:
                     fig_map.add_trace(go.Scattergeo(
                         lon=paris_lon, lat=paris_lat,
@@ -432,7 +442,6 @@ with t4:
                         name='Προς Παρίσι', hoverinfo='skip'
                     ))
 
-                # Προσθήκη όλων των μπλε γραμμών (Προς Λονδίνο) ως ένα ενιαίο trace
                 if london_lon:
                     fig_map.add_trace(go.Scattergeo(
                         lon=london_lon, lat=london_lat,
@@ -440,7 +449,6 @@ with t4:
                         name='Προς Λονδίνο', hoverinfo='skip'
                     ))
 
-                # Προσθήκη των κόμβων (Πόλεις) για να φαίνονται τα ονόματα στο hover
                 nodes_df = pd.concat([
                     df_network[['Source_Label', 'Source_Lat', 'Source_Lon']].rename(columns={'Source_Label':'City', 'Source_Lat':'Lat', 'Source_Lon':'Lon'}),
                     df_network[['Target_Label', 'Target_Lat', 'Target_Lon']].rename(columns={'Target_Label':'City', 'Target_Lat':'Lat', 'Target_Lon':'Lon'})
@@ -460,11 +468,33 @@ with t4:
                     showlegend=True, 
                     geo=dict(scope='europe', showland=True, landcolor='rgb(243, 243, 243)'), 
                     height=600,
-                    margin=dict(l=0, r=0, t=40, b=0) # Αφαίρεση περιθωρίων για μεγαλύτερο χάρτη
+                    margin=dict(l=0, r=0, t=40, b=0)
                 )
                 st.plotly_chart(fig_map, use_container_width=True)
             else:
                 st.warning("⚠️ Το αρχείο Palladio_Network_Data.csv δεν βρέθηκε. Ο χάρτης δεν μπορεί να δημιουργηθεί.")
+
+# ==========================================
+# ΚΑΡΤΕΛΑ 5: ΟΝΤΟΤΗΤΕΣ
+# ==========================================
+with t5:
+    st.subheader(ui['ent_sub'])
+    col_a, col_b = st.columns(2)
+    def make_ner_chart(col_name, color, title):
+        if col_name in df_filt.columns:
+            data = df_filt[col_name].str.split(',').explode().str.strip().replace('', pd.NA).dropna()
+            if not data.empty:
+                counts = data.value_counts().head(20).reset_index()
+                counts.columns = ['Entity', 'Count']
+                fig = px.bar(counts, x='Count', y='Entity', orientation='h', color_discrete_sequence=[color], height=700)
+                fig.update_layout(title=title, yaxis={'categoryorder':'total ascending'})
+                return fig
+        return None
+    chart_p = make_ner_chart('entities_persons', "#1f77b4", ui['ent_top_p'])
+    chart_l = make_ner_chart('entities_locations', "#ff7f0e", ui['ent_top_l'])
+    if chart_p: col_a.plotly_chart(chart_p, use_container_width=True)
+    if chart_l: col_b.plotly_chart(chart_l, use_container_width=True)
+
 # ==========================================
 # ΚΑΡΤΕΛΑ 6: NEWS WAVES
 # ==========================================
@@ -472,104 +502,61 @@ with t6:
     st.subheader(ui['waves_sub'])
     st.info(ui['waves_note'])
 
-    df_waves = load_news_wave_data()
-
-    if df_waves.empty:
-        st.error("⚠️ No news-wave data could be loaded. Please check if the CSV files exist in the directory.")
+    if df_waves.empty or not wave_cards:
+        st.error("⚠️ Λείπουν τα αρχεία 'news_wave_streamlit_slim.csv' ή 'streamlit_news_wave_cards.json'.")
     else:
-        events = sorted(df_waves["event_label"].dropna().unique())
-        selected_event = st.selectbox(ui['waves_select'], events)
-
-        df_w = df_waves[df_waves["event_label"] == selected_event].copy()
-
-        c1, c2, c3 = st.columns(3)
-        c1.metric(ui['waves_records'], f"{len(df_w):,}")
+        event_options = [card.get('canonical_event_label', 'Unknown') for card in wave_cards]
+        selected_event = st.selectbox("Επιλογή Ιστορικού Γεγονότος / Κύματος:", event_options)
         
-        if "newspaper_title" in df_w.columns:
-            c2.metric(ui['waves_newspapers'], df_w["newspaper_title"].nunique())
-        else:
-            c2.metric(ui['waves_newspapers'], "-")
+        card_data = next((c for c in wave_cards if c.get('canonical_event_label') == selected_event), None)
+        
+        if card_data:
+            cluster_id = card_data.get('canonical_story_cluster_id', '')
+            
+            st.info(f"**Σύνοψη (AI):** {card_data.get('dashboard_card_el', 'Δεν βρέθηκε σύνοψη')}")
+            
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Όγκος Άρθρων", card_data.get('count', 0))
+            c2.metric("Κυρίαρχο Πλαίσιο", card_data.get('dominant_frame', '-'))
+            c3.metric("Τύπος Γεγονότος", card_data.get('dominant_event_type', '-'))
+            c4.metric("Μέσο Μετάδοσης", card_data.get('dominant_transmission_medium', '-'))
+            
+            st.markdown(f"**Προφίλ Βεβαιότητας:** {card_data.get('certainty_profile', '-')}")
+            st.markdown(f"**Προφίλ Μετάδοσης:** {card_data.get('transmission_profile', '-')}")
+            st.divider()
+            
+            df_w = df_waves[df_waves["canonical_story_cluster_id"] == cluster_id].copy()
+            
+            def simple_bar(dataframe, column, title, color):
+                if column in dataframe.columns:
+                    temp = dataframe[column].fillna("Unknown").astype(str).str.strip()
+                    temp = temp.replace({"": "Unknown", "nan": "Unknown", "None": "Unknown"})
+                    counts = temp.value_counts().head(10).reset_index()
+                    counts.columns = ["Category", "Count"]
+                    if counts.empty: return None
+                    fig = px.bar(counts, x="Count", y="Category", orientation="h", color_discrete_sequence=[color], title=title)
+                    fig.update_layout(yaxis={'categoryorder': 'total ascending'}, height=350, margin=dict(t=50, b=20, l=10, r=10))
+                    return fig
+                return None
 
-        if "news_origin_norm" in df_w.columns:
-            c3.metric(ui['waves_origins'], df_w["news_origin_norm"].nunique())
-        else:
-            c3.metric(ui['waves_origins'], "-")
-
-        st.divider()
-
-        def simple_bar(dataframe, column, title, color):
-            if column in dataframe.columns:
-                temp = dataframe[column].fillna("Unknown").astype(str).str.strip()
-                temp = temp.replace({"": "Unknown", "nan": "Unknown", "None": "Unknown"})
-                counts = temp.value_counts().head(15).reset_index()
-                counts.columns = ["Category", "Count"]
-
-                fig = px.bar(
-                    counts,
-                    x="Count",
-                    y="Category",
-                    orientation="h",
-                    color_discrete_sequence=[color],
-                    title=title
-                )
-                fig.update_layout(
-                    yaxis={'categoryorder': 'total ascending'},
-                    height=420,
-                    margin=dict(t=50, b=20, l=10, r=10)
-                )
-                return fig
-            return None
-
-        col_w1, col_w2 = st.columns(2)
-
-        with col_w1:
-            fig_r = simple_bar(df_w, "rumor_status", ui['waves_rumor'], "#3498db")
-            if fig_r: st.plotly_chart(fig_r, use_container_width=True)
-
-        with col_w2:
-            fig_m = simple_bar(df_w, "transmission_medium", ui['waves_medium'], "#2ecc71")
-            if fig_m: st.plotly_chart(fig_m, use_container_width=True)
-
-        col_w3, col_w4 = st.columns(2)
-
-        with col_w3:
-            fig_f = simple_bar(df_w, "rhetorical_frame_primary", ui['waves_frame'], "#9b59b6")
-            if fig_f: st.plotly_chart(fig_f, use_container_width=True)
-
-        with col_w4:
-            fig_t = simple_bar(df_w, "canonical_event_type", ui['waves_type'], "#e67e22")
-            if fig_t: st.plotly_chart(fig_t, use_container_width=True)
-
-        st.divider()
-
-        fig_p = simple_bar(df_w, "event_phase", ui['waves_phase'], "#34495e")
-        if fig_p:
-            st.plotly_chart(fig_p, use_container_width=True)
-
-        st.divider()
-
-        st.markdown(f"### {ui['waves_sample']}")
-
-        show_cols = [
-            "newspaper_title",
-            "date",
-            "publication_place",
-            "news_origin_norm",
-            "rumor_status",
-            "certainty_score",
-            "transmission_medium",
-            "transmission_formula",
-            "rhetorical_frame_primary",
-            "canonical_event_type",
-            "event_phase",
-            "source_criticism_note",
-            "needs_review"
-        ]
-
-        show_cols = [c for c in show_cols if c in df_w.columns]
-
-        st.dataframe(
-            df_w[show_cols].head(100),
-            use_container_width=True,
-            hide_index=True
-        )
+            col_w1, col_w2 = st.columns(2)
+            with col_w1:
+                fig_r = simple_bar(df_w, "rumor_status", "Κατάσταση Πληροφορίας", "#3498db")
+                if fig_r: st.plotly_chart(fig_r, use_container_width=True)
+            with col_w2:
+                fig_m = simple_bar(df_w, "transmission_medium", "Μέσο Μετάδοσης", "#2ecc71")
+                if fig_m: st.plotly_chart(fig_m, use_container_width=True)
+                
+            col_w3, col_w4 = st.columns(2)
+            with col_w3:
+                fig_f = simple_bar(df_w, "rhetorical_frame_primary", "Ρητορικό Πλαίσιο", "#9b59b6")
+                if fig_f: st.plotly_chart(fig_f, use_container_width=True)
+            with col_w4:
+                fig_t = simple_bar(df_w, "canonical_event_type", "Τύπος Γεγονότος", "#e67e22")
+                if fig_t: st.plotly_chart(fig_t, use_container_width=True)
+                
+            st.divider()
+            st.markdown(f"### Δείγμα Εγγραφών ({selected_event})")
+            show_cols = ["newspaper_title", "date", "country", "publication_place", "news_origin_norm", "rumor_status", "transmission_medium", "rhetorical_frame_primary", "canonical_event_type"]
+            show_cols = [c for c in show_cols if c in df_w.columns]
+            st.dataframe(df_w[show_cols].head(100), use_container_width=True, hide_index=True)
