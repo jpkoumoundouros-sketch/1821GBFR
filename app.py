@@ -380,7 +380,7 @@ with t3:
         st.plotly_chart(px.area(df_t, x='year_val', y='count', color='ai_topic', height=500), use_container_width=True)
 
 # ==========================================
-# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ ΚΑΙ ΧΑΡΤΗΣ (SANKEY + FOLIUM HTML)
+# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ & ΧΑΡΤΗΣ (SANKEY + PLOTLY MAP)
 # ==========================================
 with t4:
     st.subheader(ui['flows_sub'])
@@ -404,39 +404,67 @@ with t4:
 
             st.divider()
 
-            # 2. Interactive HTML Map (Folium AntPath)
-            st.markdown("**2. Γεωχωρικός Χάρτης Ροών (Animated AntPath Map)**")
-            map_path = os.path.join(BASE_DIR, "Interactive_Global_News_Map.html")
+            # 2. Ελαφρύς Διαδραστικός Χάρτης με Plotly (Αντί για Folium)
+            st.markdown("**2. Γεωχωρικός Χάρτης Ροών (Plotly Native)**")
             
-            if os.path.exists(map_path):
-                with open(map_path, "r", encoding="utf-8") as f:
-                    html_data = f.read()
-                # Ενσωμάτωση του έτοιμου χάρτη HTML απευθείας στο Streamlit
-                components.html(html_data, height=650, scrolling=False)
+            # Φορτώνουμε τα δεδομένα του χάρτη (Palladio_Network_Data.csv)
+            if not df_network.empty:
+                # Ομαδοποίηση των γραμμών για να μην κρασάρει ο browser
+                paris_lon, paris_lat = [], []
+                london_lon, london_lat = [], []
+
+                for i, row in df_network.iterrows():
+                    # Προσθέτουμε [Source, Target, None] για να ζωγραφιστεί η γραμμή και να "σπάσει" πριν την επόμενη
+                    if row['Target_Label'] == 'Paris':
+                        paris_lon.extend([row['Source_Lon'], row['Target_Lon'], None])
+                        paris_lat.extend([row['Source_Lat'], row['Target_Lat'], None])
+                    else:
+                        london_lon.extend([row['Source_Lon'], row['Target_Lon'], None])
+                        london_lat.extend([row['Source_Lat'], row['Target_Lat'], None])
+
+                fig_map = go.Figure()
+
+                # Προσθήκη όλων των κόκκινων γραμμών (Προς Παρίσι) ως ένα ενιαίο trace
+                if paris_lon:
+                    fig_map.add_trace(go.Scattergeo(
+                        lon=paris_lon, lat=paris_lat,
+                        mode='lines', line=dict(width=1.5, color='red'), opacity=0.5,
+                        name='Προς Παρίσι', hoverinfo='skip'
+                    ))
+
+                # Προσθήκη όλων των μπλε γραμμών (Προς Λονδίνο) ως ένα ενιαίο trace
+                if london_lon:
+                    fig_map.add_trace(go.Scattergeo(
+                        lon=london_lon, lat=london_lat,
+                        mode='lines', line=dict(width=1.5, color='blue'), opacity=0.5,
+                        name='Προς Λονδίνο', hoverinfo='skip'
+                    ))
+
+                # Προσθήκη των κόμβων (Πόλεις) για να φαίνονται τα ονόματα στο hover
+                nodes_df = pd.concat([
+                    df_network[['Source_Label', 'Source_Lat', 'Source_Lon']].rename(columns={'Source_Label':'City', 'Source_Lat':'Lat', 'Source_Lon':'Lon'}),
+                    df_network[['Target_Label', 'Target_Lat', 'Target_Lon']].rename(columns={'Target_Label':'City', 'Target_Lat':'Lat', 'Target_Lon':'Lon'})
+                ]).drop_duplicates()
+
+                fig_map.add_trace(go.Scattergeo(
+                    lon=nodes_df['Lon'], lat=nodes_df['Lat'],
+                    mode='markers',
+                    marker=dict(size=6, color='black'),
+                    text=nodes_df['City'],
+                    hoverinfo='text',
+                    name='Κόμβοι'
+                ))
+
+                fig_map.update_layout(
+                    title_text='Διαδρομές Ειδήσεων (Κόκκινο: Παρίσι | Μπλε: Λονδίνο)', 
+                    showlegend=True, 
+                    geo=dict(scope='europe', showland=True, landcolor='rgb(243, 243, 243)'), 
+                    height=600,
+                    margin=dict(l=0, r=0, t=40, b=0) # Αφαίρεση περιθωρίων για μεγαλύτερο χάρτη
+                )
+                st.plotly_chart(fig_map, use_container_width=True)
             else:
-                st.info("⚠️ Το αρχείο 'Interactive_Global_News_Map.html' δεν βρέθηκε στον φάκελο. Βεβαιώσου ότι είναι αποθηκευμένο μαζί με το app.py.")
-
-# ==========================================
-# ΚΑΡΤΕΛΑ 5: ΟΝΤΟΤΗΤΕΣ
-# ==========================================
-with t5:
-    st.subheader(ui['ent_sub'])
-    col_a, col_b = st.columns(2)
-    def make_ner_chart(col_name, color, title):
-        if col_name in df_filt.columns:
-            data = df_filt[col_name].str.split(',').explode().str.strip().replace('', pd.NA).dropna()
-            if not data.empty:
-                counts = data.value_counts().head(20).reset_index()
-                counts.columns = ['Entity', 'Count']
-                fig = px.bar(counts, x='Count', y='Entity', orientation='h', color_discrete_sequence=[color], height=700)
-                fig.update_layout(title=title, yaxis={'categoryorder':'total ascending'})
-                return fig
-        return None
-    chart_p = make_ner_chart('entities_persons', "#1f77b4", ui['ent_top_p'])
-    chart_l = make_ner_chart('entities_locations', "#ff7f0e", ui['ent_top_l'])
-    if chart_p: col_a.plotly_chart(chart_p, use_container_width=True)
-    if chart_l: col_b.plotly_chart(chart_l, use_container_width=True)
-
+                st.warning("⚠️ Το αρχείο Palladio_Network_Data.csv δεν βρέθηκε. Ο χάρτης δεν μπορεί να δημιουργηθεί.")
 # ==========================================
 # ΚΑΡΤΕΛΑ 6: NEWS WAVES
 # ==========================================
