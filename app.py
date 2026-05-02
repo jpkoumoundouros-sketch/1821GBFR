@@ -457,23 +457,23 @@ with t4:
 
             fig_map = go.Figure()
 
-            # Προσθήκη όλων των κόκκινων γραμμών (Προς Γαλλία)
+            # Προσθήκη όλων των κόκκινων γραμμών (Προς Γαλλία) - Πιο φωτεινό κόκκινο για το Dark Mode
             if fr_lon:
                 fig_map.add_trace(go.Scattergeo(
                     lon=fr_lon, lat=fr_lat,
-                    mode='lines', line=dict(width=1.5, color='#e74c3c'), opacity=0.4,
+                    mode='lines', line=dict(width=1.5, color='#ff4d4d'), opacity=0.5,
                     name='Προς Γαλλία', hoverinfo='skip'
                 ))
 
-            # Προσθήκη όλων των μπλε γραμμών (Προς Βρετανία)
+            # Προσθήκη όλων των μπλε γραμμών (Προς Βρετανία) - Πιο φωτεινό μπλε
             if uk_lon:
                 fig_map.add_trace(go.Scattergeo(
                     lon=uk_lon, lat=uk_lat,
-                    mode='lines', line=dict(width=1.5, color='#3498db'), opacity=0.4,
+                    mode='lines', line=dict(width=1.5, color='#3498db'), opacity=0.5,
                     name='Προς Βρετανία', hoverinfo='skip'
                 ))
 
-            # Προσθήκη των κόμβων (Πόλεις)
+            # Προσθήκη των κόμβων (Πόλεις) - Λευκές κουκκίδες
             if nodes_to_plot:
                 node_lons = [CITY_COORDS[city][1] for city in nodes_to_plot]
                 node_lats = [CITY_COORDS[city][0] for city in nodes_to_plot]
@@ -481,19 +481,35 @@ with t4:
                 fig_map.add_trace(go.Scattergeo(
                     lon=node_lons, lat=node_lats,
                     mode='markers+text',
-                    marker=dict(size=7, color='#2c3e50', symbol='circle'),
+                    marker=dict(size=7, color='white', symbol='circle', line=dict(width=1, color='black')),
                     text=list(nodes_to_plot),
+                    textfont=dict(color='white'), # Λευκά γράμματα
                     textposition="top center",
                     hoverinfo='text',
                     name='Κόμβοι Πληροφορίας'
                 ))
 
+            # --- DARK MODE LAYOUT ---
             fig_map.update_layout(
                 title_text='Συνολικές Διαδρομές Ειδήσεων', 
-                showlegend=True, 
-                # Άλλαξα το scope σε 'world' για να φαίνονται Ινδία, Καραϊβική κλπ
-                geo=dict(scope='world', showland=True, landcolor='rgb(243, 243, 243)'), 
-                height=700,
+                title_font=dict(color='white'),
+                showlegend=True,
+                legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
+                geo=dict(
+                    scope='europe', 
+                    showland=True, 
+                    landcolor='rgb(35, 35, 35)',      # Σκούρο γκρι για τη στεριά
+                    showocean=True,
+                    oceancolor='rgb(15, 15, 15)',     # Σχεδόν μαύρο για τη θάλασσα
+                    showcountries=True,
+                    countrycolor='rgb(70, 70, 70)',   # Σκούρα όρια χωρών
+                    showcoastlines=True,
+                    coastlinecolor='rgb(70, 70, 70)',
+                    bgcolor='rgba(0,0,0,0)'           # Διάφανο background του container
+                ), 
+                paper_bgcolor='rgba(0,0,0,0)',        # Διάφανο paper background
+                plot_bgcolor='rgba(0,0,0,0)',
+                height=650,
                 margin=dict(l=0, r=0, t=40, b=0)
             )
             st.plotly_chart(fig_map, use_container_width=True)
