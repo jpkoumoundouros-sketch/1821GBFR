@@ -142,7 +142,7 @@ LANG_UI = {
 }
 
 # ==========================================
-# 📚 NORMALIZATION DICTIONARIES (NER)
+# 📚 NORMALIZATION DICTIONARIES & COORDINATES
 # ==========================================
 PERSON_ALIASES = {
     'Ibrahim Pasha': ['ibrahim-pacha', 'ibrahim', 'ibrahim pacha', 'pacha of egypt', 'pacha', 'ibrahim pasha', 'ibrahim pascha', 'i-brahim pacha', 'ibrahian-pacha', 'ibrahim-packa'],
@@ -181,6 +181,28 @@ LOC_ALIASES = {
     'Athens': ['athens', 'athènes']
 }
 
+# Λεξικό Συντεταγμένων για τον Χάρτη
+CITY_COORDS = {
+    "London": [51.5074, -0.1278], "Dublin": [53.3498, -6.2603], "Yorkshire": [53.9599, -1.0872], 
+    "Midlothian": [55.9533, -3.1883], "Lancashire": [53.7632, -2.7044], "Hampshire": [51.0577, -1.3080],
+    "Durham": [54.7753, -1.5849], "Antrim": [54.7167, -6.2000], "Warwickshire": [52.2823, -1.5849],
+    "Inverness-shire": [57.4778, -4.2247], "Bristol": [51.4545, -2.5879], "Edinburgh": [55.9533, -3.1883],
+    "Paris": [48.8566, 2.3522], "Bordeaux": [44.8378, -0.5792], "Strasbourg": [48.5734, 7.7521], 
+    "Toulouse": [43.6047, 1.4442], "Montpellier": [43.6108, 3.8767], "Marseille": [43.2965, 5.3698],
+    "Vienna": [48.2082, 16.3738], "Trieste": [45.6495, 13.7768], "Augsburg": [48.3705, 10.8978],
+    "Odessa": [46.4825, 30.7233], "St. Petersburg": [59.9311, 30.3609], "Geneva": [46.2044, 6.1432],
+    "Naples": [40.8518, 14.2681], "Livorno": [43.5485, 10.3106], "Ancona": [43.6158, 13.5189],
+    "Constantinople": [41.0082, 28.9784], "Smyrna": [38.4237, 27.1428], "Alexandria": [31.2001, 29.9187],
+    "Thessaloniki": [40.6401, 22.9444], "Malta": [35.9375, 14.3978],
+    "Greece": [38.5, 23.5], "Morea": [37.5, 22.5], "Athens": [37.9838, 23.7275], 
+    "Nafplio": [37.5672, 22.7984], "Missolonghi": [38.3687, 21.4286], "Patras": [38.2466, 21.7346], 
+    "Navarino": [36.9110, 21.6924], "Tripolitsa": [37.5108, 22.3768],
+    "Corfu": [39.6243, 19.9217], "Zante": [37.7870, 20.8999], "Kefalonia": [38.2598, 20.5750],
+    "Syros": [37.4415, 24.9425], "Hydra": [37.3496, 23.4682], "Chios": [38.3678, 26.1361],
+    "Tamil Nadu": [13.0827, 80.2707], "Maharashtra": [18.9667, 72.8333], "Barbados": [13.1939, -59.5432],
+    "Alger": [36.7538, 3.0588], "Jamaica": [18.1096, -77.2975]
+}
+
 def normalize_entities(entity_str, alias_dict):
     if pd.isna(entity_str) or not isinstance(entity_str, str) or entity_str.strip() == "":
         return ""
@@ -200,7 +222,7 @@ def normalize_entities(entity_str, alias_dict):
             cleaned.append(val.title())
     return ", ".join(sorted(list(set(cleaned))))
 
-# --- ΣΥΝΑΡΤΗΣΕΙΣ ΦΟΡΤΩΣΗΣ ΔΕΔΟΜΕΝΩΝ (ΜΕ BASE_DIR) ---
+# --- LOAD DATA FUNCTIONS ---
 @st.cache_data
 def load_thesis_data_v4():
     try:
@@ -245,17 +267,6 @@ def load_thesis_data_v4():
         return pd.DataFrame(), pd.Series()
 
 @st.cache_data
-def load_network_data():
-    try:
-        file_path = os.path.join(BASE_DIR, "Palladio_Network_Data.csv")
-        df = pd.read_csv(file_path)
-        df[['Source_Lat', 'Source_Lon']] = df['Source_LatLon'].str.split(',', expand=True).astype(float)
-        df[['Target_Lat', 'Target_Lon']] = df['Target_LatLon'].str.split(',', expand=True).astype(float)
-        return df
-    except:
-        return pd.DataFrame()
-
-@st.cache_data
 def load_slim_data():
     try:
         file_path = os.path.join(BASE_DIR, "THESIS_SLIM_FOR_NOTEBOOKLM.csv")
@@ -266,12 +277,34 @@ def load_slim_data():
 
 @st.cache_data
 def load_waves_data():
-    try:
-        file_path = os.path.join(BASE_DIR, "news_wave_streamlit_slim.csv")
-        df = pd.read_csv(file_path, low_memory=False)
-        return df
-    except:
-        return pd.DataFrame()
+    files = {
+        "Chios 1822": os.path.join(BASE_DIR, "news_wave_chios_1822_v3.csv"),
+        "Missolonghi 1826": os.path.join(BASE_DIR, "news_wave_missolonghi_1826_v3.csv"),
+        "Navarino 1827": os.path.join(BASE_DIR, "news_wave_navarino_1827_v3.csv"),
+        "Random origin sample 2000": os.path.join(BASE_DIR, "news_wave_origin_random_2000_v3.csv"),
+    }
+    frames = []
+    missing_files = []
+
+    for label, path in files.items():
+        if os.path.exists(path):
+            try:
+                temp = pd.read_csv(path, encoding="utf-8-sig", on_bad_lines='skip', low_memory=False)
+                temp["event_label"] = label
+                frames.append(temp)
+            except Exception as e:
+                st.error(f"Σφάλμα ανάγνωσης στο {path}: {e}")
+        else:
+            missing_files.append(os.path.basename(path))
+    
+    if missing_files:
+        st.warning(f"Προσοχή: Τα παρακάτω αρχεία CSV δεν βρέθηκαν στον φάκελο:\n" + ", ".join(missing_files))
+    
+    if frames:
+        df_waves = pd.concat(frames, ignore_index=True)
+        df_waves.columns = df_waves.columns.str.strip()
+        return df_waves
+    return pd.DataFrame()
 
 @st.cache_data
 def load_waves_cards():
@@ -282,11 +315,8 @@ def load_waves_cards():
     except:
         return []
 
-# ==========================================
-# 🚀 ΦΟΡΤΩΣΗ ΟΛΩΝ ΤΩΝ ΔΕΔΟΜΕΝΩΝ (Ορίζονται ΕΔΩ)
-# ==========================================
+# Φόρτωση δεδομένων
 df_main, raw_relevance = load_thesis_data_v4()
-df_network = load_network_data()
 df_slim = load_slim_data()
 df_waves = load_waves_data()
 wave_cards = load_waves_cards()
@@ -398,8 +428,9 @@ with t3:
 # ==========================================
 with t4:
     st.subheader(ui['flows_sub'])
-    c_src = next((c for c in df_filt.columns if 'origin' in c), None)
-    c_dst = next((c for c in df_filt.columns if 'pub' in c or 'place' in c), None)
+    # Εύρεση στηλών προέλευσης και προορισμού
+    c_src = 'news_origin_norm' if 'news_origin_norm' in df_filt.columns else next((c for c in df_filt.columns if 'origin' in c), None)
+    c_dst = 'publication_place' if 'publication_place' in df_filt.columns else next((c for c in df_filt.columns if 'pub' in c or 'place' in c), None)
     
     if c_src and c_dst:
         bad_words = ['unknown', 'nan', 'none', 'άγνωστο', 'άγνωστη', 'inconnu', '[]']
@@ -408,7 +439,7 @@ with t4:
         
         if not f_df.empty:
             # 1. Sankey Diagram
-            st.markdown("**1. Sankey Flow (Information Volume)**")
+            st.markdown("**1. Sankey Flow (Όγκος Πληροφορίας)**")
             f_grp = f_df.groupby([c_src, c_dst]).size().reset_index(name='c').sort_values('c', ascending=False).head(40)
             nds = list(pd.concat([f_grp[c_src], f_grp[c_dst]]).unique())
             mapping = {n: i for i, n in enumerate(nds)}
@@ -418,61 +449,77 @@ with t4:
 
             st.divider()
 
-            # 2. Ελαφρύς Διαδραστικός Χάρτης με Plotly
-            st.markdown("**2. Γεωχωρικός Χάρτης Ροών (Plotly Native)**")
+            # 2. Ελαφρύς Διαδραστικός Χάρτης με Plotly (Αντλεί από το μεγάλο αρχείο)
+            st.markdown("**2. Γεωχωρικός Χάρτης Ροών (Όλες οι Διαδρομές)**")
             
-            if not df_network.empty:
-                paris_lon, paris_lat = [], []
-                london_lon, london_lat = [], []
+            # Δημιουργία data frame με τις μοναδικές ροές και τον όγκο τους (weight)
+            map_data = f_df.groupby([c_src, c_dst]).size().reset_index(name='weight')
+            
+            uk_lon, uk_lat = [], []
+            fr_lon, fr_lat = [], []
+            nodes_to_plot = set()
 
-                for i, row in df_network.iterrows():
-                    if row['Target_Label'] == 'Paris':
-                        paris_lon.extend([row['Source_Lon'], row['Target_Lon'], None])
-                        paris_lat.extend([row['Source_Lat'], row['Target_Lat'], None])
-                    else:
-                        london_lon.extend([row['Source_Lon'], row['Target_Lon'], None])
-                        london_lat.extend([row['Source_Lat'], row['Target_Lat'], None])
+            for _, row in map_data.iterrows():
+                src_city = str(row[c_src]).strip()
+                dst_city = str(row[c_dst]).strip()
+                
+                # Αν οι πόλεις υπάρχουν στο λεξικό μας, προσθέτουμε συντεταγμένες
+                if src_city in CITY_COORDS and dst_city in CITY_COORDS:
+                    s_lat, s_lon = CITY_COORDS[src_city]
+                    d_lat, d_lon = CITY_COORDS[dst_city]
+                    
+                    nodes_to_plot.add(src_city)
+                    nodes_to_plot.add(dst_city)
+                    
+                    # Αν ο προορισμός είναι Γαλλικός
+                    if dst_city in ["Paris", "Bordeaux", "Strasbourg", "Toulouse", "Montpellier", "Marseille"]:
+                        fr_lon.extend([s_lon, d_lon, None])
+                        fr_lat.extend([s_lat, d_lat, None])
+                    else: # Αλλιώς θεωρούμε Βρετανικό/Άλλο
+                        uk_lon.extend([s_lon, d_lon, None])
+                        uk_lat.extend([s_lat, d_lat, None])
 
-                fig_map = go.Figure()
+            fig_map = go.Figure()
 
-                if paris_lon:
-                    fig_map.add_trace(go.Scattergeo(
-                        lon=paris_lon, lat=paris_lat,
-                        mode='lines', line=dict(width=1.5, color='red'), opacity=0.5,
-                        name='Προς Παρίσι', hoverinfo='skip'
-                    ))
-
-                if london_lon:
-                    fig_map.add_trace(go.Scattergeo(
-                        lon=london_lon, lat=london_lat,
-                        mode='lines', line=dict(width=1.5, color='blue'), opacity=0.5,
-                        name='Προς Λονδίνο', hoverinfo='skip'
-                    ))
-
-                nodes_df = pd.concat([
-                    df_network[['Source_Label', 'Source_Lat', 'Source_Lon']].rename(columns={'Source_Label':'City', 'Source_Lat':'Lat', 'Source_Lon':'Lon'}),
-                    df_network[['Target_Label', 'Target_Lat', 'Target_Lon']].rename(columns={'Target_Label':'City', 'Target_Lat':'Lat', 'Target_Lon':'Lon'})
-                ]).drop_duplicates()
-
+            # Προσθήκη όλων των κόκκινων γραμμών (Προς Γαλλία)
+            if fr_lon:
                 fig_map.add_trace(go.Scattergeo(
-                    lon=nodes_df['Lon'], lat=nodes_df['Lat'],
-                    mode='markers',
-                    marker=dict(size=6, color='black'),
-                    text=nodes_df['City'],
-                    hoverinfo='text',
-                    name='Κόμβοι'
+                    lon=fr_lon, lat=fr_lat,
+                    mode='lines', line=dict(width=1.5, color='#e74c3c'), opacity=0.4,
+                    name='Προς Γαλλία', hoverinfo='skip'
                 ))
 
-                fig_map.update_layout(
-                    title_text='Διαδρομές Ειδήσεων (Κόκκινο: Παρίσι | Μπλε: Λονδίνο)', 
-                    showlegend=True, 
-                    geo=dict(scope='europe', showland=True, landcolor='rgb(243, 243, 243)'), 
-                    height=600,
-                    margin=dict(l=0, r=0, t=40, b=0)
-                )
-                st.plotly_chart(fig_map, use_container_width=True)
-            else:
-                st.warning("⚠️ Το αρχείο Palladio_Network_Data.csv δεν βρέθηκε. Ο χάρτης δεν μπορεί να δημιουργηθεί.")
+            # Προσθήκη όλων των μπλε γραμμών (Προς Βρετανία)
+            if uk_lon:
+                fig_map.add_trace(go.Scattergeo(
+                    lon=uk_lon, lat=uk_lat,
+                    mode='lines', line=dict(width=1.5, color='#3498db'), opacity=0.4,
+                    name='Προς Βρετανία', hoverinfo='skip'
+                ))
+
+            # Προσθήκη των κόμβων (Πόλεις)
+            if nodes_to_plot:
+                node_lons = [CITY_COORDS[city][1] for city in nodes_to_plot]
+                node_lats = [CITY_COORDS[city][0] for city in nodes_to_plot]
+                
+                fig_map.add_trace(go.Scattergeo(
+                    lon=node_lons, lat=node_lats,
+                    mode='markers+text',
+                    marker=dict(size=7, color='#2c3e50', symbol='circle'),
+                    text=list(nodes_to_plot),
+                    textposition="top center",
+                    hoverinfo='text',
+                    name='Κόμβοι Πληροφορίας'
+                ))
+
+            fig_map.update_layout(
+                title_text='Συνολικές Διαδρομές Ειδήσεων', 
+                showlegend=True, 
+                geo=dict(scope='europe', showland=True, landcolor='rgb(243, 243, 243)'), 
+                height=650,
+                margin=dict(l=0, r=0, t=40, b=0)
+            )
+            st.plotly_chart(fig_map, use_container_width=True)
 
 # ==========================================
 # ΚΑΡΤΕΛΑ 5: ΟΝΤΟΤΗΤΕΣ
