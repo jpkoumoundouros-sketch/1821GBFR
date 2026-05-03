@@ -21,7 +21,7 @@ st.set_page_config(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ==========================================
-# ΠΡΟΑΙΡΕΤΙΚΟ BACKGROUND
+# DARK BACKGROUND
 # ==========================================
 def add_bg_from_local(image_file):
     image_path = Path(BASE_DIR) / image_file
@@ -32,11 +32,27 @@ def add_bg_from_local(image_file):
             <style>
             .stApp {{
                 background-image:
-                    linear-gradient(rgba(255,255,255,0.93), rgba(255,255,255,0.93)),
+                    linear-gradient(rgba(0,0,0,0.88), rgba(0,0,0,0.88)),
                     url("data:image/png;base64,{encoded}");
                 background-size: cover;
                 background-position: center;
                 background-attachment: fixed;
+                color: #f2f2f2;
+            }}
+
+            section[data-testid="stSidebar"] {{
+                background-color: #111111;
+            }}
+
+            h1, h2, h3, h4, h5, h6, p, label, span, div {{
+                color: #f2f2f2;
+            }}
+
+            div[data-testid="stMetric"] {{
+                background-color: rgba(255, 255, 255, 0.06);
+                padding: 12px;
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
             }}
             </style>
             """,
@@ -44,7 +60,6 @@ def add_bg_from_local(image_file):
         )
 
 add_bg_from_local("background_map.png")
-
 # ==========================================
 # 🌍 ΛΕΞΙΚΟ ΠΟΛΥΓΛΩΣΣΙΚΟΥ UI
 # ==========================================
