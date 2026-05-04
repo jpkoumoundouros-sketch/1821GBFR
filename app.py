@@ -323,10 +323,13 @@ def load_waves_cards():
 
 @st.cache_data
 def load_emotions_data():
+    file_path = os.path.join(BASE_DIR, "EMOTION_ANALYSIS_SUMMARY.xlsx")
+    
+    if not os.path.exists(file_path):
+        st.error(f"Το σύστημα λέει ότι το αρχείο όντως λείπει από τη διαδρομή: {file_path}")
+        return None
+        
     try:
-        file_path = os.path.join(BASE_DIR, "EMOTION_ANALYSIS_SUMMARY.xlsx")
-        if not os.path.exists(file_path):
-            return None
         xls = pd.ExcelFile(file_path)
         data = {
             'overall': pd.read_excel(xls, 'emotion_means_overall'),
@@ -336,6 +339,7 @@ def load_emotions_data():
         }
         return data
     except Exception as e:
+        st.error(f"Το αρχείο υπάρχει, ΑΛΛΑ έσκασε στο διάβασμα! Το σφάλμα είναι: {e}")
         return None
 
 # Φόρτωση δεδομένων
