@@ -541,7 +541,7 @@ with t4:
                 showlegend=True,
                 legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
                 geo=dict(
-                    scope='europe', 
+                    scope='world', 
                     showland=True, 
                     landcolor='rgb(35, 35, 35)', 
                     showocean=True,
