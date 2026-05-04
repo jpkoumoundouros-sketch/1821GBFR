@@ -697,12 +697,22 @@ with t7:
         st.markdown(f"**3. {ui['emo_country']}**")
         df_yc = dict_emotions['by_year_country'].copy()
         
+        # Διόρθωση των ονομάτων των στηλών για να ταιριάζουν με το Dropdown
+        rename_map = {
+            'emotion_fear': 'Fear',
+            'emotion_pity': 'Pity',
+            'emotion_heroism': 'Heroism',
+            'emotion_barbarity': 'Barbarity',
+            'emotion_hope': 'Hope'
+        }
+        df_yc = df_yc.rename(columns=rename_map)
+        
         if not df_yc.empty and 'country_analysis' in df_yc.columns:
             selected_emo = st.selectbox(ui['emo_select'], emo_cols)
             
             fig_yc = px.line(
                 df_yc, x='year_val', y=selected_emo, color='country_analysis', markers=True,
-                color_discrete_map={'GB': '#1f77b4', 'FR': '#d62728'}
+                color_discrete_map={'UK': '#1f77b4', 'France': '#d62728', 'GB': '#1f77b4', 'FR': '#d62728'}
             )
             fig_yc.update_layout(height=450, xaxis_title="Έτος", yaxis_title=f"Ένταση ({selected_emo})")
             st.plotly_chart(fig_yc, use_container_width=True)
