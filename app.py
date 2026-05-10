@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -1199,6 +1198,3 @@ with t10:
             height=600
         )
         st.plotly_chart(fig_radar, use_container_width=True)
-
-
-```
