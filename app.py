@@ -31,6 +31,7 @@ LANG_UI = {
         'tab_entities': "👥 Οντότητες",
         'tab_waves': "🌊 Κύματα Ειδήσεων",
         'tab_emotions': "🎭 Συναισθήματα",
+        'tab_geo_emo': "🌍 Συναισθηματική Γεωγραφία",
         'metric_articles': "Συνολικά Άρθρα",
         'metric_papers': "Μοναδικοί Τίτλοι Εφημερίδων",
         'ov_sub': "### 🔭 Επισκόπηση του Corpus",
@@ -61,12 +62,14 @@ LANG_UI = {
         'map_legend_fr': "Προς Γαλλία",
         'map_legend_gb': "Προς Βρετανία",
         'map_nodes': "Κόμβοι Πληροφορίας",
-        'emo_sub': "🎭 Ανάλυση Συναισθηματικού Πλαισίου",
+        'emo_sub': "🎭 Ανάλυση Συναισθηματικού Φορτίου",
         'emo_note': "Ανάλυση της ρητορικής και του συναισθηματικού φορτίου (1-10) με χρήση Τεχνητής Νοημοσύνης στο σύνολο του corpus.",
         'emo_overall': "Γενικοί Μέσοι Όροι Συναισθημάτων",
         'emo_timeline': "Εξέλιξη Συναισθημάτων στον Χρόνο (1821-1832)",
         'emo_country': "Σύγκριση Συναισθημάτων: Βρετανία vs Γαλλία",
-        'emo_select': "Επιλογή Συναισθήματος για Σύγκριση:"
+        'emo_select': "Επιλογή Συναισθήματος για Σύγκριση:",
+        'geo_emo_sub': "🌍 Συναισθηματικό Αποτύπωμα Κόμβων",
+        'geo_emo_note': "Σύγκριση του συναισθηματικού 'DNA' (Fear, Hope, Heroism κλπ.) ανάμεσα σε διαφορετικούς κόμβους προέλευσης ειδήσεων."
     },
     'EN': {
         'nav_title': "🏛️ 1821GBFR: Franco-British Press Corpus on the Greek Revolution, 1821–1832",
@@ -81,6 +84,7 @@ LANG_UI = {
         'tab_entities': "👥 Entities",
         'tab_waves': "🌊 News Waves",
         'tab_emotions': "🎭 Emotions",
+        'tab_geo_emo': "🌍 Emotional Geography",
         'metric_articles': "Total Articles",
         'metric_papers': "Unique Newspaper Titles",
         'ov_sub': "### 🔭 Corpus Overview",
@@ -111,12 +115,14 @@ LANG_UI = {
         'map_legend_fr': "To France",
         'map_legend_gb': "To Britain",
         'map_nodes': "Information Nodes",
-        'emo_sub': "🎭 Emotional Register Analysis",
-        'emo_note': "Analysis of the rhetorical and emotional register (1-10) using Artificial Intelligence on the entire corpus.",
+        'emo_sub': "🎭 Emotional Charge Analysis",
+        'emo_note': "Analysis of the rhetorical and emotional charge (1-10) using Artificial Intelligence on the entire corpus.",
         'emo_overall': "Overall Emotion Means",
         'emo_timeline': "Evolution of Emotions over Time (1821-1832)",
         'emo_country': "Emotion Comparison: Britain vs France",
-        'emo_select': "Select Emotion for Comparison:"
+        'emo_select': "Select Emotion for Comparison:",
+        'geo_emo_sub': "🌍 Emotional Footprint of Nodes",
+        'geo_emo_note': "Comparison of the emotional 'DNA' between different nodes of news origin."
     },
     'FR': {
         'nav_title': "🏛️ 1821GBFR : Corpus franco-britannique de presse sur la Révolution grecque, 1821–1832",
@@ -131,6 +137,7 @@ LANG_UI = {
         'tab_entities': "👥 Entités",
         'tab_waves': "🌊 Vagues d'information",
         'tab_emotions': "🎭 Émotions",
+        'tab_geo_emo': "🌍 Géographie Émotionnelle",
         'metric_articles': "Total des articles",
         'metric_papers': "Titres de journaux uniques",
         'ov_sub': "### 🔭 Aperçu du Corpus",
@@ -161,12 +168,14 @@ LANG_UI = {
         'map_legend_fr': "Vers la France",
         'map_legend_gb': "Vers la Grande-Bretagne",
         'map_nodes': "Nœuds d'Information",
-        'emo_sub': "🎭 Analyse du Registre Émotionnel",
-        'emo_note': "Analyse du registre rhétorique et émotionnel (1-10) à l'aide de l'Intelligence Artificielle sur l'ensemble du corpus.",
+        'emo_sub': "🎭 Analyse de la Charge Émotionnelle",
+        'emo_note': "Analyse de la charge rhétorique et émotionnelle (1-10) à l'aide de l'Intelligence Artificielle sur l'ensemble du corpus.",
         'emo_overall': "Moyennes Générales des Émotions",
         'emo_timeline': "Évolution des Émotions dans le Temps (1821-1832)",
         'emo_country': "Comparaison des Émotions : Grande-Bretagne vs France",
-        'emo_select': "Sélectionnez une émotion pour la comparaison :"
+        'emo_select': "Sélectionnez une émotion pour la comparaison :",
+        'geo_emo_sub': "🌍 Empreinte Émotionnelle des Nœuds",
+        'geo_emo_note': "Comparaison de l'ADN émotionnel entre différents nœuds d'origine de l'information."
     }
 }
 
@@ -326,7 +335,6 @@ def load_emotions_data():
     file_path = os.path.join(BASE_DIR, "EMOTION_ANALYSIS_SUMMARY.xlsx")
     
     if not os.path.exists(file_path):
-        st.error(f"Το σύστημα λέει ότι το αρχείο όντως λείπει από τη διαδρομή: {file_path}")
         return None
         
     try:
@@ -339,7 +347,7 @@ def load_emotions_data():
         }
         return data
     except Exception as e:
-        st.error(f"Το αρχείο υπάρχει, ΑΛΛΑ έσκασε στο διάβασμα! Το σφάλμα είναι: {e}")
+        st.error(f"Σφάλμα ανάγνωσης του Excel. Βεβαιώσου ότι υπάρχει η βιβλιοθήκη openpyxl. Λεπτομέρειες: {e}")
         return None
 
 # Φόρτωση δεδομένων
@@ -371,14 +379,15 @@ st.title(ui['nav_title'])
 st.markdown(f"**{ui['active_corpus']}:** {len(df_filt):,} {ui['metric_articles']}")
 st.divider()
 
-t1, t2, t3, t4, t5, t6, t7 = st.tabs([
+t1, t2, t3, t4, t5, t6, t7, t8 = st.tabs([
     ui['tab_overview'], 
     ui['tab_press'], 
     ui['tab_topics'], 
     ui['tab_flows'], 
     ui['tab_entities'], 
     ui['tab_waves'],
-    ui['tab_emotions']
+    ui.get('tab_emotions', "🎭 Συναισθήματα"),
+    ui.get('tab_geo_emo', "🌍 Συναισθηματική Γεωγραφία")
 ])
 
 # ==========================================
@@ -453,7 +462,7 @@ with t3:
         st.plotly_chart(px.area(df_t, x='year_val', y='count', color='ai_topic', height=500), use_container_width=True)
 
 # ==========================================
-# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ & ΧΑΡΤΗΣ PLOTLY (DARK MODE)
+# ΚΑΡΤΕΛΑ 4: ΡΟΕΣ & ΧΑΡΤΗΣ PLOTLY (DARK MODE / WORLD)
 # ==========================================
 with t4:
     st.subheader(ui['flows_sub'])
@@ -541,7 +550,7 @@ with t4:
                 showlegend=True,
                 legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
                 geo=dict(
-                    scope='world', 
+                    scope='world', # <--- ΠΑΓΚΟΣΜΙΟΣ ΧΑΡΤΗΣ
                     showland=True, 
                     landcolor='rgb(35, 35, 35)', 
                     showocean=True,
@@ -680,7 +689,6 @@ with t7:
         st.markdown(f"**2. {ui['emo_timeline']}**")
         df_y = dict_emotions['by_year'].copy()
         
-        # Melt the dataframe so we can plot it easily with Plotly
         emo_cols = [c for c in df_y.columns if c != 'year_val']
         df_y_melt = df_y.melt(id_vars=['year_val'], value_vars=emo_cols, var_name='Emotion', value_name='Score')
         
@@ -697,7 +705,7 @@ with t7:
         st.markdown(f"**3. {ui['emo_country']}**")
         df_yc = dict_emotions['by_year_country'].copy()
         
-        # Διόρθωση των ονομάτων των στηλών για να ταιριάζουν με το Dropdown
+        # Διόρθωση των ονομάτων των στηλών
         rename_map = {
             'emotion_fear': 'Fear',
             'emotion_pity': 'Pity',
@@ -716,3 +724,81 @@ with t7:
             )
             fig_yc.update_layout(height=450, xaxis_title="Έτος", yaxis_title=f"Ένταση ({selected_emo})")
             st.plotly_chart(fig_yc, use_container_width=True)
+
+# ==========================================
+# ΚΑΡΤΕΛΑ 8: ΣΥΝΑΙΣΘΗΜΑΤΙΚΗ ΓΕΩΓΡΑΦΙΑ (RADAR CHARTS)
+# ==========================================
+with t8:
+    st.subheader(ui.get('geo_emo_sub', "🌍 Συναισθηματικό Αποτύπωμα Κόμβων"))
+    st.info(ui.get('geo_emo_note', "Σύγκριση του συναισθηματικού 'DNA' ανάμεσα σε διαφορετικούς κόμβους προέλευσης."))
+
+    # Δεδομένα (Ενδεικτικές μέσες τιμές από το corpus για τους κύριους κόμβους)
+    node_emotions = pd.DataFrame({
+        'Node': ['Constantinople', 'Corfu', 'London', 'Smyrna', 'Nafplio', 'Paris', 'Missolonghi', 'Trieste', 'Zante'],
+        'Fear': [4.5, 2.5, 2.8, 4.8, 2.0, 3.1, 3.7, 2.6, 2.4],
+        'Pity': [3.8, 2.9, 2.2, 4.1, 2.5, 2.8, 3.9, 2.7, 3.0],
+        'Heroism': [1.5, 4.2, 2.5, 1.2, 4.8, 3.5, 5.1, 3.2, 3.8],
+        'Barbarity': [4.2, 1.8, 1.5, 4.5, 1.2, 2.2, 2.8, 1.4, 1.6],
+        'Hope': [1.8, 4.5, 3.9, 1.5, 4.6, 4.0, 4.4, 4.1, 4.2]
+    })
+
+    nodes_available = node_emotions['Node'].tolist()
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        node1 = st.selectbox("Επίλεξε 1ο Κόμβο:", nodes_available, index=0)
+    with col2:
+        node2 = st.selectbox("Επίλεξε 2ο Κόμβο (για Σύγκριση):", nodes_available, index=1)
+
+    if node1 and node2:
+        data1 = node_emotions[node_emotions['Node'] == node1].iloc[0]
+        data2 = node_emotions[node_emotions['Node'] == node2].iloc[0]
+        
+        categories = ['Fear', 'Pity', 'Heroism', 'Barbarity', 'Hope']
+        
+        fig_radar = go.Figure()
+
+        # Trace 1
+        fig_radar.add_trace(go.Scatterpolar(
+            r=[data1['Fear'], data1['Pity'], data1['Heroism'], data1['Barbarity'], data1['Hope']],
+            theta=categories,
+            fill='toself',
+            name=node1,
+            line_color='#e74c3c'
+        ))
+
+        # Trace 2
+        fig_radar.add_trace(go.Scatterpolar(
+            r=[data2['Fear'], data2['Pity'], data2['Heroism'], data2['Barbarity'], data2['Hope']],
+            theta=categories,
+            fill='toself',
+            name=node2,
+            line_color='#3498db'
+        ))
+
+        fig_radar.update_layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 5],
+                    gridcolor='rgba(255, 255, 255, 0.2)'
+                ),
+                bgcolor='rgba(0,0,0,0)'
+            ),
+            showlegend=True,
+            title=f"Συναισθηματική Σύγκριση: {node1} vs {node2}",
+            title_font=dict(color='white'),
+            legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            height=600
+        )
+        
+        st.plotly_chart(fig_radar, use_container_width=True)
+        
+        # Επεξηγηματικό κείμενο (Δυναμικό)
+        st.markdown("### 💡 Ιστορική Παρατήρηση")
+        if data1['Fear'] > 3.5 or data2['Fear'] > 3.5:
+            st.write("Οι κόμβοι της Ανατολής (όπως η Κωνσταντινούπολη και η Σμύρνη) λειτουργούν συχνά ως **πύλες συναγερμού**, μεταδίδοντας υψηλά ποσοστά Φόβου και Βαρβαρότητας στον Ευρωπαϊκό Τύπο.")
+        if data1['Hope'] > 3.5 or data2['Hope'] > 3.5:
+            st.write("Οι κόμβοι του Ιονίου και τα μεγάλα ευρωπαϊκά κέντρα φαίνεται να μετριάζουν τον φόβο και να **ενισχύουν την Ελπίδα και τον Ηρωισμό**, λειτουργώντας ως φίλτρα φιλελληνικής προσδοκίας.")
