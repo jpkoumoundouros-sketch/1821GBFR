@@ -151,7 +151,7 @@ LANG_UI = {
         'geo_emo_note': "Comparison of the emotional tone between different nodes of news origin.",
     },
     'FR': {
-        'nav_title': "🏛️ 1821GBFR : Corpus franco-britannique de presse sur la Révolution grecque, 1821–1832",
+        'nav_title': "🏛️ 1821GBFR : Corpus franco-britannique de presse sur la Révolution Grecque, 1821–1832",
         'active_corpus': "Corpus Actif",
         'filters_header': "🎛️ Filtres",
         'filter_country': "Pays:",
