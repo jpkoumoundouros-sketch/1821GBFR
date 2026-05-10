@@ -617,15 +617,21 @@ def make_animated_map(flow_df, c_src, c_dst, ui):
         showlegend=True,
         legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
         geo=dict(
-            scope='europe',
+            scope='world',
+            projection_type='natural earth',
             showland=True, landcolor='rgb(35,35,35)',
             showocean=True, oceancolor='rgb(15,15,30)',
             showcountries=True, countrycolor='rgb(70,70,70)',
             showcoastlines=True, coastlinecolor='rgb(80,80,80)',
+            showlakes=False,
             bgcolor='rgba(0,0,0,0)',
-            center=dict(lat=40, lon=18),
-            projection_scale=3.5
+            # Default view centred on the Mediterranean
+            center=dict(lat=40, lon=20),
+            lonaxis=dict(range=[-15, 60]),
+            lataxis=dict(range=[20, 65]),
         ),
+        # Enable mouse zoom + pan on the geo subplot
+        dragmode='zoom',
         paper_bgcolor='rgba(15,15,20,1)',
         plot_bgcolor='rgba(15,15,20,1)',
         height=650,
