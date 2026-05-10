@@ -40,7 +40,7 @@ LANG_UI = {
         'tab_wavemap': "🗺️ Χρονική Κυκλοφορία",
         'tab_emotions': "🎭 Συναισθήματα",
         'tab_geo_emo': "🌍 Συναισθηματική Γεωγραφία",
-        'metric_articles': "Συνολικά Άρθρα",
+        'metric_articles': "Συνολικές εγγραφές",
         'metric_papers': "Μοναδικοί Τίτλοι Εφημερίδων",
         'ov_sub': "### 🔭 Επισκόπηση του Corpus",
         'ov_relevance': "Αξιολόγηση Σχετικότητας (AI)",
