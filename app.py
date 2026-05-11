@@ -303,7 +303,7 @@ def normalize_entities(entity_str, alias_dict):
 @st.cache_data
 def load_thesis_data_v4():
     try:
-        with zipfile.ZipFile(os.path.join(BASE_DIR, "THESIS_RECLASSIFIED_FINAL.csv.zip"), 'r') as z:
+        with zipfile.ZipFile(os.path.join(BASE_DIR, "THESIS_STREAMLIT_SLIM.csv"), 'r') as z:
             csv_files = [n for n in z.namelist() if not n.startswith('__MACOSX') and n.endswith('.csv')]
             if not csv_files:
                 return pd.DataFrame(), pd.Series()
