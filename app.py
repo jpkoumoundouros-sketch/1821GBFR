@@ -26,30 +26,70 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LANG_UI = {
     "EL": {
         "nav_title": "🏛️ 1821GBFR: Γαλλοβρετανικό Corpus Τύπου για την Ελληνική Επανάσταση, 1821–1832",
-        "active_corpus": "Ενεργό Corpus", "filters_header": "🎛️ Φίλτρα", "filter_country": "Χώρες:", "filter_period": "Περίοδος:",
-        "tab_overview": "📊 Επισκόπηση", "tab_press": "📰 Εκδοτικό Τοπίο", "tab_topics": "🧠 Θεματολογία",
-        "tab_flows": "🌍 Ροές & Χάρτης", "tab_entities": "👥 Οντότητες", "tab_cooc": "🕸️ Συν-εμφάνιση",
-        "tab_waves": "🌊 Κύματα Ειδήσεων", "tab_wavemap": "🗺️ Χρονική Κυκλοφορία", "tab_emotions": "🎭 Συναισθήματα",
-        "tab_geo_emo": "🌍 Συναισθηματική Γεωγραφία", "metric_articles": "Συνολικά Άρθρα", "metric_papers": "Μοναδικοί Τίτλοι Εφημερίδων",
-        "metric_total_corpus": "Σύνολο Corpus", "metric_directly_relevant": "Άμεσα Σχετικές Εγγραφές",
+        "active_corpus": "Ενεργό Corpus",
+        "filters_header": "🎛️ Φίλτρα",
+        "filter_country": "Χώρες:",
+        "filter_period": "Περίοδος:",
+        "tab_overview": "📊 Επισκόπηση",
+        "tab_press": "📰 Εκδοτικό Τοπίο",
+        "tab_topics": "🧠 Θεματολογία",
+        "tab_flows": "🌍 Ροές & Χάρτης",
+        "tab_entities": "👥 Οντότητες",
+        "tab_cooc": "🕸️ Συν-εμφάνιση",
+        "tab_waves": "🌊 Κύματα Ειδήσεων",
+        "tab_wavemap": "🗺️ Χρονική Κυκλοφορία",
+        "tab_emotions": "🎭 Συναισθήματα",
+        "tab_geo_emo": "🌍 Συναισθηματική Γεωγραφία",
+        "metric_articles": "Συνολικά Άρθρα",
+        "metric_papers": "Μοναδικοί Τίτλοι Εφημερίδων",
+        "metric_total_corpus": "Σύνολο Corpus",
+        "metric_directly_relevant": "Άμεσα Σχετικές Εγγραφές",
         "metric_active_dashboard": "Ενεργό Dataset Dashboard",
         "overview_caption": "Το dashboard αναλύει το directly relevant corpus. Η πίτα σχετικότητας παρουσιάζει την κατανομή του πλήρους αρχικού corpus.",
-        "ov_sub": "### 🔭 Επισκόπηση του Corpus", "ov_relevance": "Αξιολόγηση Σχετικότητας (AI)", "ov_country": "Κατανομή ανά Χώρα (Ενεργό)",
-        "ov_top_topics": "Top 5 Κυρίαρχα Θέματα", "ov_timeline": "📈 Εξέλιξη Όγκου Δημοσιεύσεων (1821–1832)",
-        "press_sub": "📰 Πολιτική Γραμμή των 15 κυριότερων Εφημερίδων", "topics_sub": "🧠 Εξέλιξη Κυρίαρχων Θεμάτων",
-        "flows_sub": "🌍 Ροές Ειδήσεων & Γεωχωρική Ανάλυση", "ent_sub": "👥 Ανάλυση Οντοτήτων", "ent_top_p": "Top 20 Πρόσωπα",
-        "ent_top_l": "Top 20 Τοποθεσίες", "cooc_sub": "🕸️ Δίκτυο Συν-εμφάνισης Οντοτήτων",
-        "cooc_note": "Κάθε κόμβος είναι μια οντότητα. Κάθε ακμή δείχνει πόσες φορές δύο οντότητες εμφανίζονται στο ίδιο άρθρο.",
-        "cooc_type": "Τύπος Οντοτήτων:", "cooc_top_n": "Αριθμός κορυφαίων οντοτήτων:", "cooc_min_edge": "Ελάχιστες συν-εμφανίσεις:",
-        "waves_sub": "🌊 Ανάλυση Ειδησεογραφικών Κυμάτων", "waves_note": "Η ανάλυση βασίζεται σε AI-assisted annotation. Τα αποτελέσματα είναι πειραματικά.",
-        "waves_select": "Επιλογή συνόλου:", "waves_rumor": "Κατάσταση Πληροφορίας", "waves_medium": "Μέσο Μετάδοσης",
-        "waves_frame": "Ρητορικό Πλαίσιο", "waves_type": "Τύπος Γεγονότος", "waves_sample": "Δείγμα εγγραφών",
-        "wavemap_sub": "🗺️ Χρονική Κυκλοφορία Κυμάτων (1821–1832)", "wavemap_note": "Animation που δείχνει πώς αλλάζουν οι ειδησεογραφικές ροές χρόνο με χρόνο.",
-        "map_title": "Συνολικές Διαδρομές Ειδήσεων", "map_legend_fr": "Προς Γαλλία", "map_legend_gb": "Προς Βρετανία",
-        "map_nodes": "Κόμβοι Πληροφορίας", "emo_sub": "🎭 Ανάλυση Συναισθηματικού Φορτίου", "emo_note": "Ανάλυση ρητορικής και συναισθηματικού φορτίου (1–10) με χρήση AI.",
-        "emo_overall": "Γενικοί Μέσοι Όροι Συναισθημάτων", "emo_timeline": "Εξέλιξη Συναισθημάτων στον Χρόνο (1821–1832)",
-        "emo_country": "Σύγκριση Συναισθημάτων: Βρετανία vs Γαλλία", "emo_select": "Επιλογή Συναισθήματος για Σύγκριση:",
-        "geo_emo_sub": "🌍 Συναισθηματικό Αποτύπωμα Κόμβων", "geo_emo_note": "Σύγκριση του συναισθηματικού τόνου ανάμεσα σε κόμβους προέλευσης ειδήσεων, με πραγματικά scores από το corpus.",
+        "ov_sub": "### 🔭 Επισκόπηση του Corpus",
+        "ov_relevance": "Αξιολόγηση Σχετικότητας (AI)",
+        "ov_country": "Κατανομή ανά Χώρα (Ενεργό)",
+        "ov_top_topics": "Top 5 Κυρίαρχα Θέματα",
+        "ov_timeline": "📈 Εξέλιξη Όγκου Δημοσιεύσεων (Συνολικό Corpus, 1821–1832)",
+        "press_sub": "📰 Πολιτική Γραμμή των 15 κυριότερων Εφημερίδων",
+        "topics_sub": "🧠 Εξέλιξη Κυρίαρχων Θεμάτων",
+        "flows_sub": "🌍 Ροές Ειδήσεων & Γεωχωρική Ανάλυση",
+        "ent_sub": "👥 Ανάλυση Οντοτήτων",
+        "ent_top_p": "Top 20 Πρόσωπα",
+        "ent_top_l": "Top 20 Τοποθεσίες",
+        "cooc_sub": "🕸️ Δίκτυο Συν-εμφάνισης Οντοτήτων",
+        "cooc_note": "Κάθε κόμβος είναι μια οντότητα. Κάθε ακμή δείχνει πόσες φορές δύο οντότητες εμφανίζονται στο ίδιο άρθρο. Πάχος ακμής = συχνότητα συν-εμφάνισης.",
+        "cooc_type": "Τύπος Οντοτήτων:",
+        "cooc_top_n": "Αριθμός κορυφαίων οντοτήτων:",
+        "cooc_min_edge": "Ελάχιστες συν-εμφανίσεις (φίλτρο ακμών):",
+        "waves_sub": "🌊 Ανάλυση Ειδησεογραφικών Κυμάτων",
+        "waves_note": "Η ανάλυση βασίζεται σε AI-assisted annotation εγγραφών με τεκμηριωμένο news_origin_norm. Τα αποτελέσματα είναι πειραματικά.",
+        "waves_select": "Επιλογή συνόλου:",
+        "waves_records": "Εγγραφές",
+        "waves_newspapers": "Εφημερίδες",
+        "waves_origins": "Προελεύσεις Ειδήσεων",
+        "waves_rumor": "Κατάσταση Πληροφορίας",
+        "waves_medium": "Μέσο Μετάδοσης",
+        "waves_frame": "Ρητορικό Πλαίσιο",
+        "waves_type": "Τύπος Γεγονότος",
+        "waves_phase": "Φάση Ειδησεογραφικού Κύματος",
+        "waves_sample": "Δείγμα εγγραφών",
+        "wavemap_sub": "🗺️ Χρονική Κυκλοφορία Κυμάτων (1821–1832)",
+        "wavemap_note": "Animation που δείχνει πώς αλλάζουν οι ειδησεογραφικές ροές χρόνο με χρόνο. Κάθε γραμμή είναι μια τεκμηριωμένη διαδρομή news_origin_norm → publication_place.",
+        "wavemap_speed": "Ταχύτητα Animation:",
+        "unknown": "Άγνωστο",
+        "map_title": "Συνολικές Διαδρομές Ειδήσεων",
+        "map_legend_fr": "Προς Γαλλία",
+        "map_legend_gb": "Προς Βρετανία",
+        "map_nodes": "Κόμβοι Πληροφορίας",
+        "emo_sub": "🎭 Ανάλυση Συναισθηματικού Φορτίου",
+        "emo_note": "Ανάλυση ρητορικής και συναισθηματικού φορτίου (1–10) με χρήση AI.",
+        "emo_overall": "Γενικοί Μέσοι Όροι Συναισθημάτων",
+        "emo_timeline": "Εξέλιξη Συναισθημάτων στον Χρόνο (1821–1832)",
+        "emo_country": "Σύγκριση Συναισθημάτων: Βρετανία vs Γαλλία",
+        "emo_select": "Επιλογή Συναισθήματος για Σύγκριση:",
+        "geo_emo_sub": "🌍 Συναισθηματικό Αποτύπωμα Κόμβων",
+        "geo_emo_note": "Σύγκριση του συναισθηματικού τόνου ανάμεσα σε κόμβους προέλευσης ειδήσεων, με πραγματικά scores από το corpus.",
     },
     "EN": {
         "nav_title": "🏛️ 1821GBFR: Franco-British Press Corpus on the Greek Revolution, 1821–1832",
@@ -62,7 +102,7 @@ LANG_UI = {
         "metric_active_dashboard": "Active Dashboard Dataset",
         "overview_caption": "The dashboard analyzes the directly relevant corpus. The relevance pie chart shows the distribution of the full initial corpus.",
         "ov_sub": "### 🔭 Corpus Overview", "ov_relevance": "Relevance Assessment (AI)", "ov_country": "Distribution by Country (Active)",
-        "ov_top_topics": "Top 5 Dominant Topics", "ov_timeline": "📈 Publication Volume Evolution (1821–1832)",
+        "ov_top_topics": "Top 5 Dominant Topics", "ov_timeline": "📈 Publication Volume Evolution (Full Corpus, 1821–1832)",
         "press_sub": "📰 Editorial Stance of Top 15 Newspapers", "topics_sub": "🧠 Dominant Topics Evolution",
         "flows_sub": "🌍 News Flows & Geospatial Map", "ent_sub": "👥 Entity Analysis", "ent_top_p": "Top 20 Persons",
         "ent_top_l": "Top 20 Locations", "cooc_sub": "🕸️ Entity Co-occurrence Network",
@@ -89,7 +129,7 @@ LANG_UI = {
         "metric_active_dashboard": "Dataset actif du tableau de bord",
         "overview_caption": "Le tableau de bord analyse le corpus directement pertinent. Le graphique de pertinence présente la répartition du corpus initial complet.",
         "ov_sub": "### 🔭 Aperçu du Corpus", "ov_relevance": "Évaluation de la pertinence (IA)", "ov_country": "Répartition par pays (Actif)",
-        "ov_top_topics": "Top 5 des thèmes dominants", "ov_timeline": "📈 Évolution du volume des publications (1821–1832)",
+        "ov_top_topics": "Top 5 des thèmes dominants", "ov_timeline": "📈 Évolution du volume des publications (Corpus Total, 1821–1832)",
         "press_sub": "📰 Ligne politique des 15 principaux journaux", "topics_sub": "🧠 Évolution des thèmes dominants",
         "flows_sub": "🌍 Flux d'informations et Carte Géospatiale", "ent_sub": "👥 Analyse des entités", "ent_top_p": "Top 20 Personnes",
         "ent_top_l": "Top 20 Lieux", "cooc_sub": "🕸️ Réseau de co-occurrence des entités",
@@ -164,6 +204,8 @@ CITY_COORDS = {
     "Patras": [38.2466, 21.7346], "Navarino": [36.9110, 21.6924], "Tripolitsa": [37.5108, 22.3768],
     "Corfu": [39.6243, 19.9217], "Zante": [37.7870, 20.8999], "Kefalonia": [38.2598, 20.5750],
     "Syros": [37.4415, 24.9425], "Hydra": [37.3496, 23.4682], "Chios": [38.3678, 26.1361],
+    "Tamil Nadu": [13.0827, 80.2707], "Maharashtra": [18.9667, 72.8333], "Barbados": [13.1939, -59.5432],
+    "Alger": [36.7538, 3.0588], "Jamaica": [18.1096, -77.2975]
 }
 FR_CITIES = {"Paris", "Bordeaux", "Strasbourg", "Toulouse", "Montpellier", "Marseille"}
 BAD_VALUES = {'unknown', 'nan', 'none', 'άγνωστο', 'άγνωστη', 'inconnu', '[]', '', 'skipped', 'skip'}
@@ -233,7 +275,7 @@ def load_thesis_data_v4():
     try:
         csv_path = os.path.join(BASE_DIR, "THESIS_STREAMLIT_SLIM.csv")
         if not os.path.exists(csv_path):
-            return pd.DataFrame(), pd.Series(dtype="int64")
+            return pd.DataFrame(), pd.Series(dtype="int64"), pd.DataFrame()
 
         df = pd.read_csv(csv_path, encoding="utf-8-sig", low_memory=False)
         df.columns = df.columns.str.lower().str.strip()
@@ -245,15 +287,7 @@ def load_thesis_data_v4():
 
         raw_relevance = df['ai_relevance'].value_counts() if 'ai_relevance' in df.columns else pd.Series(dtype="int64")
 
-        if 'is_directly_relevant' in df.columns:
-            df = df[df['is_directly_relevant'].astype(str).str.lower().isin(['true', '1', 'yes'])].copy()
-        elif 'ai_relevance' in df.columns:
-            df = df[df['ai_relevance'].astype(str).str.lower().str.strip() == 'directly_relevant'].copy()
-
-        for col in ['ai_stance', 'ai_topic']:
-            if col in df.columns:
-                df[col] = clean_missing_series(df[col]).replace({"": "Unknown", "unknown": "Unknown"})
-
+        # --- ΚΑΘΑΡΙΣΜΟΣ ΧΩΡΑΣ & ΕΤΟΥΣ ΠΡΙΝ ΤΟ ΦΙΛΤΡΑΡΙΣΜΑ RELEVANCE ---
         if 'country' in df.columns:
             df['country'] = df['country'].astype(str).str.strip().str.upper().replace(
                 {'UK': 'GB', 'UNITED KINGDOM': 'GB', 'FRANCE': 'FR'}
@@ -274,6 +308,19 @@ def load_thesis_data_v4():
             ).fillna(0)
 
         df = df[(df['year_val'] >= 1821) & (df['year_val'] <= 1832)].copy()
+        
+        # --- ΥΠΟΛΟΓΙΣΜΟΣ ΟΓΚΟΥ ΣΥΝΟΛΙΚΟΥ (RAW) CORPUS ΑΝΑ ΕΤΟΣ ΚΑΙ ΧΩΡΑ ---
+        raw_timeline = df.groupby(['year_val', 'country']).size().reset_index(name='count')
+
+        # --- ΦΙΛΤΡΑΡΙΣΜΑ ΜΟΝΟ ΓΙΑ DIRECTLY RELEVANT ΑΡΘΡΑ ΣΤΟ ΚΥΡΙΟ DF ---
+        if 'is_directly_relevant' in df.columns:
+            df = df[df['is_directly_relevant'].astype(str).str.lower().isin(['true', '1', 'yes'])].copy()
+        elif 'ai_relevance' in df.columns:
+            df = df[df['ai_relevance'].astype(str).str.lower().str.strip() == 'directly_relevant'].copy()
+
+        for col in ['ai_stance', 'ai_topic']:
+            if col in df.columns:
+                df[col] = clean_missing_series(df[col]).replace({"": "Unknown", "unknown": "Unknown"})
 
         if 'entities_persons' in df.columns:
             df['entities_persons'] = df['entities_persons'].apply(lambda x: normalize_entities(x, PERSON_ALIASES))
@@ -289,10 +336,10 @@ def load_thesis_data_v4():
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
 
-        return df, raw_relevance
+        return df, raw_relevance, raw_timeline
     except Exception as e:
         st.error(f"Error loading main data: {e}")
-        return pd.DataFrame(), pd.Series(dtype="int64")
+        return pd.DataFrame(), pd.Series(dtype="int64"), pd.DataFrame()
 
 @st.cache_data
 def load_relevance_counts():
@@ -527,11 +574,11 @@ def make_animated_map(flow_df, c_src, c_dst, ui):
     fig.update_layout(
         title=dict(text=f"{ui['wavemap_sub']} — {first_year}", font=dict(color='white', size=15)),
         showlegend=True, legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
+        # Αφαίρεση του center και των bounds για να φαίνεται ολόκληρος ο κόσμος (Ινδία, Αμερική)
         geo=dict(scope='world', projection_type='natural earth', showland=True, landcolor='rgb(35,35,35)',
                  showocean=True, oceancolor='rgb(15,15,30)', showcountries=True, countrycolor='rgb(70,70,70)',
                  showcoastlines=True, coastlinecolor='rgb(80,80,80)', showlakes=False,
-                 bgcolor='rgba(0,0,0,0)', center=dict(lat=40, lon=20),
-                 lonaxis=dict(range=[-15, 60]), lataxis=dict(range=[20, 65])),
+                 bgcolor='rgba(0,0,0,0)'),
         dragmode='zoom', paper_bgcolor='rgba(15,15,20,1)', plot_bgcolor='rgba(15,15,20,1)',
         height=650, margin=dict(l=0, r=0, t=50, b=0), font=dict(color='white'),
         updatemenus=[dict(type="buttons", showactive=False, y=0.02, x=0.5, xanchor="center",
@@ -579,7 +626,8 @@ def build_node_emotions(df):
 # ==========================================
 # 🚀 INITIALIZE DATA & SIDEBAR
 # ==========================================
-df_main, raw_relevance = load_thesis_data_v4()
+df_main, raw_relevance, raw_timeline = load_thesis_data_v4()
+
 raw_relevance_full = load_relevance_counts()
 if not raw_relevance_full.empty:
     raw_relevance = raw_relevance_full
@@ -673,11 +721,13 @@ with t1:
                 
     st.divider()
     st.markdown(f"**{ui['ov_timeline']}**")
-    df_v = df_filt.groupby(['year_val', 'country']).size().reset_index(name='count')
-    fig_v = px.line(df_v, x='year_val', y='count', color='country', markers=True,
-                    color_discrete_map={'GB': '#1f77b4', 'FR': '#d62728'})
-    fig_v.update_layout(height=400)
-    st.plotly_chart(fig_v, use_container_width=True)
+    if raw_timeline is not None and not raw_timeline.empty:
+        # Φιλτράρισμα του RAW timeline με βάση τις χώρες που έχει επιλέξει ο χρήστης
+        df_v = raw_timeline[raw_timeline['country'].isin(sel_countries)].copy()
+        fig_v = px.line(df_v, x='year_val', y='count', color='country', markers=True,
+                        color_discrete_map={'GB': '#1f77b4', 'FR': '#d62728'})
+        fig_v.update_layout(height=400)
+        st.plotly_chart(fig_v, use_container_width=True)
 
 # === TAB 2: PRESS ===
 with t2:
@@ -746,15 +796,15 @@ with t4:
                                                 mode='markers+text', marker=dict(size=7, color='white', symbol='circle', line=dict(width=1, color='black')),
                                                 text=nodes_sorted, textfont=dict(color='white'), textposition="top center", hoverinfo='text', name=ui['map_nodes']))
             
+            # Αφαίρεση του center και των bounds για να φαίνεται ολόκληρος ο κόσμος (Ινδία, Αμερική)
             fig_map.update_layout(
                 title_text=ui['map_title'], title_font=dict(color='white'), showlegend=True,
                 legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
-                geo=dict(scope='world', showland=True, landcolor='rgb(35,35,35)', showocean=True, oceancolor='rgb(15,15,15)',
+                geo=dict(scope='world', projection_type='natural earth', showland=True, landcolor='rgb(35,35,35)', showocean=True, oceancolor='rgb(15,15,15)',
                          showcountries=True, countrycolor='rgb(70,70,70)', showcoastlines=True, coastlinecolor='rgb(70,70,70)',
                          bgcolor='rgba(0,0,0,0)'),
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=650, margin=dict(l=0,r=0,t=40,b=0)
             )
-            # Ενεργοποίηση Zoom Control
             st.plotly_chart(fig_map, use_container_width=True, config={'scrollZoom': True, 'displayModeBar': True})
         else:
             st.warning("No flow data after filtering unknown values.")
@@ -905,7 +955,6 @@ with t8:
             st.warning("No flow data with known coordinates found.")
         else:
             fig_anim = make_animated_map(flow_df, c_src_anim, c_dst_anim, ui)
-            # Ενεργοποίηση Zoom Control
             st.plotly_chart(fig_anim, use_container_width=True, config={'scrollZoom': True, 'displayModeBar': True})
             
             st.divider()
@@ -963,7 +1012,6 @@ with t10:
     st.subheader(ui['geo_emo_sub'])
     st.info(ui['geo_emo_note'])
     
-    # Η δυναμική ανάγνωση από το corpus!
     node_emotions = build_node_emotions(df_filt)
     
     if node_emotions.empty:
