@@ -268,9 +268,30 @@ def load_thesis_data_v4():
                 df[col] = clean_missing_series(df[col]).replace({"": "Unknown", "unknown": "Unknown"})
 
         if 'country' in df.columns:
-            df['country'] = df['country'].astype(str).str.strip().str.upper().replace(
-                {'UK': 'GB', 'UNITED KINGDOM': 'GB', 'FRANCE': 'FR'}
-            )
+    df['country'] = (
+        df['country']
+        .fillna("Unknown")
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .replace({
+            "UK": "GB",
+            "GB": "GB",
+            "UNITED KINGDOM": "GB",
+            "GREAT BRITAIN": "GB",
+            "BRITAIN": "GB",
+            "ENGLAND": "GB",
+            "SCOTLAND": "GB",
+            "WALES": "GB",
+            "IRELAND": "GB",
+            "FR": "FR",
+            "FRANCE": "FR",
+            "FRENCH": "FR",
+            "NAN": "Unknown",
+            "NONE": "Unknown",
+            "": "Unknown",
+        })
+    )
 
         if 'year_val' in df.columns:
             df['year_val'] = pd.to_numeric(df['year_val'], errors='coerce').fillna(0)
