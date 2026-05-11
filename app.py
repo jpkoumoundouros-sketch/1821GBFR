@@ -303,13 +303,11 @@ def normalize_entities(entity_str, alias_dict):
 @st.cache_data
 def load_thesis_data_v4():
     try:
-        with zipfile.ZipFile(os.path.join(BASE_DIR, "THESIS_STREAMLIT_SLIM.csv"), 'r') as z:
-            csv_files = [n for n in z.namelist() if not n.startswith('__MACOSX') and n.endswith('.csv')]
-            if not csv_files:
-                return pd.DataFrame(), pd.Series()
-            with z.open(csv_files[0]) as f:
-                content = f.read().decode('utf-8', errors='replace')
-                df = pd.read_csv(io.StringIO(content), sep=None, engine='python', on_bad_lines='skip')
+        df = pd.read_csv(
+            os.path.join(BASE_DIR, "THESIS_STREAMLIT_SLIM.csv"),
+            encoding="utf-8-sig",
+            low_memory=False
+        )
 
         df.columns = df.columns.str.lower().str.strip()
 
@@ -319,6 +317,7 @@ def load_thesis_data_v4():
                 df = df.rename(columns={possible[0]: 'newspaper_title'})
 
         raw_relevance = df['ai_relevance'].value_counts() if 'ai_relevance' in df.columns else pd.Series()
+
         if 'ai_relevance' in df.columns:
             df = df[df['ai_relevance'].astype(str).str.lower().str.strip() == 'directly_relevant'].copy()
 
@@ -336,22 +335,27 @@ def load_thesis_data_v4():
         if 'date' in df.columns:
             mask = df['year_val'] == 0
             df.loc[mask, 'year_val'] = pd.to_numeric(
-                df.loc[mask, 'date'].astype(str).str.extract(r'(18[23]\d)')[0], errors='coerce').fillna(0)
+                df.loc[mask, 'date'].astype(str).str.extract(r'(18[23]\d)')[0],
+                errors='coerce'
+            ).fillna(0)
 
         df = df[(df['year_val'] >= 1821) & (df['year_val'] <= 1832)].copy()
 
         if 'entities_persons' in df.columns:
             df['entities_persons'] = df['entities_persons'].apply(
-                lambda x: normalize_entities(x, PERSON_ALIASES))
+                lambda x: normalize_entities(x, PERSON_ALIASES)
+            )
         if 'entities_locations' in df.columns:
             df['entities_locations'] = df['entities_locations'].apply(
-                lambda x: normalize_entities(x, LOC_ALIASES))
+                lambda x: normalize_entities(x, LOC_ALIASES)
+            )
 
         return df, raw_relevance
+
     except Exception as e:
         st.error(f"Error loading main data: {e}")
         return pd.DataFrame(), pd.Series()
-
+        
 @st.cache_data
 def load_waves_data():
     try:
