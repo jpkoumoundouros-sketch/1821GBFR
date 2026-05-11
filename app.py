@@ -79,7 +79,7 @@ LANG_UI = {
         "geo_emo_sub": "🌍 Emotional Footprint of Nodes", "geo_emo_note": "Comparison of the emotional tone between news-origin nodes, using real scores from the corpus.",
     },
     "FR": {
-        "nav_title": "🏛️ 1821GBFR : Corpus franco-britannique de presse sur la Révolution grecque, 1821–1832",
+        "nav_title": "🏛️ 1821GBFR : Corpus franco-britannique de presse sur la Révolution Grecque, 1821–1832",
         "active_corpus": "Corpus Actif", "filters_header": "🎛️ Filtres", "filter_country": "Pays:", "filter_period": "Période:",
         "tab_overview": "📊 Aperçu", "tab_press": "📰 Paysage éditorial", "tab_topics": "🧠 Thématiques",
         "tab_flows": "🌍 Flux et Carte", "tab_entities": "👥 Entités", "tab_cooc": "🕸️ Co-occurrence",
