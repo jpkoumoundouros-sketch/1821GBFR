@@ -1,12 +1,16 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import os, re, json
+import zipfile
+import io
+import re
+import os
+import json
 from itertools import combinations
 from collections import Counter
 
+# --- PAGE CONFIG ---
 st.set_page_config(
     page_title="1821GBFR · Greek Revolution Press Corpus",
     page_icon="📜",
@@ -16,6 +20,9 @@ st.set_page_config(
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# ==========================================
+# 🌍 MULTILINGUAL UI
+# ==========================================
 LANG_UI = {
     "EL": {
         "nav_title": "🏛️ 1821GBFR: Γαλλοβρετανικό Corpus Τύπου για την Ελληνική Επανάσταση, 1821–1832",
@@ -51,20 +58,26 @@ LANG_UI = {
         "ent_top_p": "Top 20 Πρόσωπα",
         "ent_top_l": "Top 20 Τοποθεσίες",
         "cooc_sub": "🕸️ Δίκτυο Συν-εμφάνισης Οντοτήτων",
-        "cooc_note": "Κάθε κόμβος είναι μια οντότητα. Κάθε ακμή δείχνει πόσες φορές δύο οντότητες εμφανίζονται στο ίδιο άρθρο.",
+        "cooc_note": "Κάθε κόμβος είναι μια οντότητα. Κάθε ακμή δείχνει πόσες φορές δύο οντότητες εμφανίζονται στο ίδιο άρθρο. Πάχος ακμής = συχνότητα συν-εμφάνισης.",
         "cooc_type": "Τύπος Οντοτήτων:",
         "cooc_top_n": "Αριθμός κορυφαίων οντοτήτων:",
-        "cooc_min_edge": "Ελάχιστες συν-εμφανίσεις:",
+        "cooc_min_edge": "Ελάχιστες συν-εμφανίσεις (φίλτρο ακμών):",
         "waves_sub": "🌊 Ανάλυση Ειδησεογραφικών Κυμάτων",
         "waves_note": "Η ανάλυση βασίζεται σε AI-assisted annotation εγγραφών με τεκμηριωμένο news_origin_norm. Τα αποτελέσματα είναι πειραματικά.",
         "waves_select": "Επιλογή συνόλου:",
+        "waves_records": "Εγγραφές",
+        "waves_newspapers": "Εφημερίδες",
+        "waves_origins": "Προελεύσεις Ειδήσεων",
         "waves_rumor": "Κατάσταση Πληροφορίας",
         "waves_medium": "Μέσο Μετάδοσης",
         "waves_frame": "Ρητορικό Πλαίσιο",
         "waves_type": "Τύπος Γεγονότος",
+        "waves_phase": "Φάση Ειδησεογραφικού Κύματος",
         "waves_sample": "Δείγμα εγγραφών",
         "wavemap_sub": "🗺️ Χρονική Κυκλοφορία Κυμάτων (1821–1832)",
-        "wavemap_note": "Animation που δείχνει πώς αλλάζουν οι ειδησεογραφικές ροές χρόνο με χρόνο.",
+        "wavemap_note": "Animation που δείχνει πώς αλλάζουν οι ειδησεογραφικές ροές χρόνο με χρόνο. Κάθε γραμμή είναι μια τεκμηριωμένη διαδρομή news_origin_norm → publication_place.",
+        "wavemap_speed": "Ταχύτητα Animation:",
+        "unknown": "Άγνωστο",
         "map_title": "Συνολικές Διαδρομές Ειδήσεων",
         "map_legend_fr": "Προς Γαλλία",
         "map_legend_gb": "Προς Βρετανία",
