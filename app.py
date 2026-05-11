@@ -26,70 +26,30 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LANG_UI = {
     "EL": {
         "nav_title": "🏛️ 1821GBFR: Γαλλοβρετανικό Corpus Τύπου για την Ελληνική Επανάσταση, 1821–1832",
-        "active_corpus": "Ενεργό Corpus",
-        "filters_header": "🎛️ Φίλτρα",
-        "filter_country": "Χώρες:",
-        "filter_period": "Περίοδος:",
-        "tab_overview": "📊 Επισκόπηση",
-        "tab_press": "📰 Εκδοτικό Τοπίο",
-        "tab_topics": "🧠 Θεματολογία",
-        "tab_flows": "🌍 Ροές & Χάρτης",
-        "tab_entities": "👥 Οντότητες",
-        "tab_cooc": "🕸️ Συν-εμφάνιση",
-        "tab_waves": "🌊 Κύματα Ειδήσεων",
-        "tab_wavemap": "🗺️ Χρονική Κυκλοφορία",
-        "tab_emotions": "🎭 Συναισθήματα",
-        "tab_geo_emo": "🌍 Συναισθηματική Γεωγραφία",
-        "metric_articles": "Συνολικά Άρθρα",
-        "metric_papers": "Μοναδικοί Τίτλοι Εφημερίδων",
-        "metric_total_corpus": "Σύνολο Corpus",
-        "metric_directly_relevant": "Άμεσα Σχετικές Εγγραφές",
+        "active_corpus": "Ενεργό Corpus", "filters_header": "🎛️ Φίλτρα", "filter_country": "Χώρες:", "filter_period": "Περίοδος:",
+        "tab_overview": "📊 Επισκόπηση", "tab_press": "📰 Εκδοτικό Τοπίο", "tab_topics": "🧠 Θεματολογία",
+        "tab_flows": "🌍 Ροές & Χάρτης", "tab_entities": "👥 Οντότητες", "tab_cooc": "🕸️ Συν-εμφάνιση",
+        "tab_waves": "🌊 Κύματα Ειδήσεων", "tab_wavemap": "🗺️ Χρονική Κυκλοφορία", "tab_emotions": "🎭 Συναισθήματα",
+        "tab_geo_emo": "🌍 Συναισθηματική Γεωγραφία", "metric_articles": "Συνολικά Άρθρα", "metric_papers": "Μοναδικοί Τίτλοι Εφημερίδων",
+        "metric_total_corpus": "Σύνολο Corpus", "metric_directly_relevant": "Άμεσα Σχετικές Εγγραφές",
         "metric_active_dashboard": "Ενεργό Dataset Dashboard",
         "overview_caption": "Το dashboard αναλύει το directly relevant corpus. Η πίτα σχετικότητας παρουσιάζει την κατανομή του πλήρους αρχικού corpus.",
-        "ov_sub": "### 🔭 Επισκόπηση του Corpus",
-        "ov_relevance": "Αξιολόγηση Σχετικότητας (AI)",
-        "ov_country": "Κατανομή ανά Χώρα (Ενεργό)",
-        "ov_top_topics": "Top 5 Κυρίαρχα Θέματα",
-        "ov_timeline": "📈 Εξέλιξη Όγκου Δημοσιεύσεων (1821–1832)",
-        "press_sub": "📰 Πολιτική Γραμμή των 15 κυριότερων Εφημερίδων",
-        "topics_sub": "🧠 Εξέλιξη Κυρίαρχων Θεμάτων",
-        "flows_sub": "🌍 Ροές Ειδήσεων & Γεωχωρική Ανάλυση",
-        "ent_sub": "👥 Ανάλυση Οντοτήτων",
-        "ent_top_p": "Top 20 Πρόσωπα",
-        "ent_top_l": "Top 20 Τοποθεσίες",
-        "cooc_sub": "🕸️ Δίκτυο Συν-εμφάνισης Οντοτήτων",
-        "cooc_note": "Κάθε κόμβος είναι μια οντότητα. Κάθε ακμή δείχνει πόσες φορές δύο οντότητες εμφανίζονται στο ίδιο άρθρο. Πάχος ακμής = συχνότητα συν-εμφάνισης.",
-        "cooc_type": "Τύπος Οντοτήτων:",
-        "cooc_top_n": "Αριθμός κορυφαίων οντοτήτων:",
-        "cooc_min_edge": "Ελάχιστες συν-εμφανίσεις (φίλτρο ακμών):",
-        "waves_sub": "🌊 Ανάλυση Ειδησεογραφικών Κυμάτων",
-        "waves_note": "Η ανάλυση βασίζεται σε AI-assisted annotation εγγραφών με τεκμηριωμένο news_origin_norm. Τα αποτελέσματα είναι πειραματικά.",
-        "waves_select": "Επιλογή συνόλου:",
-        "waves_records": "Εγγραφές",
-        "waves_newspapers": "Εφημερίδες",
-        "waves_origins": "Προελεύσεις Ειδήσεων",
-        "waves_rumor": "Κατάσταση Πληροφορίας",
-        "waves_medium": "Μέσο Μετάδοσης",
-        "waves_frame": "Ρητορικό Πλαίσιο",
-        "waves_type": "Τύπος Γεγονότος",
-        "waves_phase": "Φάση Ειδησεογραφικού Κύματος",
-        "waves_sample": "Δείγμα εγγραφών",
-        "wavemap_sub": "🗺️ Χρονική Κυκλοφορία Κυμάτων (1821–1832)",
-        "wavemap_note": "Animation που δείχνει πώς αλλάζουν οι ειδησεογραφικές ροές χρόνο με χρόνο. Κάθε γραμμή είναι μια τεκμηριωμένη διαδρομή news_origin_norm → publication_place.",
-        "wavemap_speed": "Ταχύτητα Animation:",
-        "unknown": "Άγνωστο",
-        "map_title": "Συνολικές Διαδρομές Ειδήσεων",
-        "map_legend_fr": "Προς Γαλλία",
-        "map_legend_gb": "Προς Βρετανία",
-        "map_nodes": "Κόμβοι Πληροφορίας",
-        "emo_sub": "🎭 Ανάλυση Συναισθηματικού Φορτίου",
-        "emo_note": "Ανάλυση ρητορικής και συναισθηματικού φορτίου (1–10) με χρήση AI.",
-        "emo_overall": "Γενικοί Μέσοι Όροι Συναισθημάτων",
-        "emo_timeline": "Εξέλιξη Συναισθημάτων στον Χρόνο (1821–1832)",
-        "emo_country": "Σύγκριση Συναισθημάτων: Βρετανία vs Γαλλία",
-        "emo_select": "Επιλογή Συναισθήματος για Σύγκριση:",
-        "geo_emo_sub": "🌍 Συναισθηματικό Αποτύπωμα Κόμβων",
-        "geo_emo_note": "Σύγκριση του συναισθηματικού τόνου ανάμεσα σε κόμβους προέλευσης ειδήσεων, με πραγματικά scores από το corpus.",
+        "ov_sub": "### 🔭 Επισκόπηση του Corpus", "ov_relevance": "Αξιολόγηση Σχετικότητας (AI)", "ov_country": "Κατανομή ανά Χώρα (Ενεργό)",
+        "ov_top_topics": "Top 5 Κυρίαρχα Θέματα", "ov_timeline": "📈 Εξέλιξη Όγκου Δημοσιεύσεων (1821–1832)",
+        "press_sub": "📰 Πολιτική Γραμμή των 15 κυριότερων Εφημερίδων", "topics_sub": "🧠 Εξέλιξη Κυρίαρχων Θεμάτων",
+        "flows_sub": "🌍 Ροές Ειδήσεων & Γεωχωρική Ανάλυση", "ent_sub": "👥 Ανάλυση Οντοτήτων", "ent_top_p": "Top 20 Πρόσωπα",
+        "ent_top_l": "Top 20 Τοποθεσίες", "cooc_sub": "🕸️ Δίκτυο Συν-εμφάνισης Οντοτήτων",
+        "cooc_note": "Κάθε κόμβος είναι μια οντότητα. Κάθε ακμή δείχνει πόσες φορές δύο οντότητες εμφανίζονται στο ίδιο άρθρο.",
+        "cooc_type": "Τύπος Οντοτήτων:", "cooc_top_n": "Αριθμός κορυφαίων οντοτήτων:", "cooc_min_edge": "Ελάχιστες συν-εμφανίσεις:",
+        "waves_sub": "🌊 Ανάλυση Ειδησεογραφικών Κυμάτων", "waves_note": "Η ανάλυση βασίζεται σε AI-assisted annotation. Τα αποτελέσματα είναι πειραματικά.",
+        "waves_select": "Επιλογή συνόλου:", "waves_rumor": "Κατάσταση Πληροφορίας", "waves_medium": "Μέσο Μετάδοσης",
+        "waves_frame": "Ρητορικό Πλαίσιο", "waves_type": "Τύπος Γεγονότος", "waves_sample": "Δείγμα εγγραφών",
+        "wavemap_sub": "🗺️ Χρονική Κυκλοφορία Κυμάτων (1821–1832)", "wavemap_note": "Animation που δείχνει πώς αλλάζουν οι ειδησεογραφικές ροές χρόνο με χρόνο.",
+        "map_title": "Συνολικές Διαδρομές Ειδήσεων", "map_legend_fr": "Προς Γαλλία", "map_legend_gb": "Προς Βρετανία",
+        "map_nodes": "Κόμβοι Πληροφορίας", "emo_sub": "🎭 Ανάλυση Συναισθηματικού Φορτίου", "emo_note": "Ανάλυση ρητορικής και συναισθηματικού φορτίου (1–10) με χρήση AI.",
+        "emo_overall": "Γενικοί Μέσοι Όροι Συναισθημάτων", "emo_timeline": "Εξέλιξη Συναισθημάτων στον Χρόνο (1821–1832)",
+        "emo_country": "Σύγκριση Συναισθημάτων: Βρετανία vs Γαλλία", "emo_select": "Επιλογή Συναισθήματος για Σύγκριση:",
+        "geo_emo_sub": "🌍 Συναισθηματικό Αποτύπωμα Κόμβων", "geo_emo_note": "Σύγκριση του συναισθηματικού τόνου ανάμεσα σε κόμβους προέλευσης ειδήσεων, με πραγματικά scores από το corpus.",
     },
     "EN": {
         "nav_title": "🏛️ 1821GBFR: Franco-British Press Corpus on the Greek Revolution, 1821–1832",
@@ -147,6 +107,9 @@ LANG_UI = {
     },
 }
 
+# ==========================================
+# 📚 CONSTANTS & DICTIONARIES
+# ==========================================
 PERSON_ALIASES = {
     'Ibrahim Pasha': ['ibrahim-pacha', 'ibrahim', 'ibrahim pacha', 'pacha of egypt', 'ibrahim pasha', 'ibrahim pascha'],
     'Ioannis Kapodistrias': ["count capo d'istria", "capo d'istria", "comte capo-d'istria", 'president of greece', 'kapodistrias'],
@@ -166,6 +129,7 @@ PERSON_ALIASES = {
     'Alexandros Mavrokordatos': ['maurocordato', 'mavrocordato', 'prince mavrocordato', 'condurietti'],
     'Constantine Kanaris': ['canaris', 'kanaris']
 }
+
 LOC_ALIASES = {
     'Greece': ['greece', 'grèce', 'western greece', 'eastern greece', 'grecs', 'greeks', 'greek'],
     'Ottoman Empire': ['turkey', 'turquie', 'porte', 'ottoman empire'],
@@ -182,6 +146,7 @@ LOC_ALIASES = {
     'Smyrna': ['smyrne', 'smyrna', 'izmir'],
     'Athens': ['athens', 'athènes']
 }
+
 CITY_COORDS = {
     "London": [51.5074, -0.1278], "Dublin": [53.3498, -6.2603], "Yorkshire": [53.9599, -1.0872],
     "Midlothian": [55.9533, -3.1883], "Lancashire": [53.7632, -2.7044], "Hampshire": [51.0577, -1.3080],
@@ -209,6 +174,9 @@ EMOTION_RENAME = {
     'fear': 'Fear', 'pity': 'Pity', 'heroism': 'Heroism', 'barbarity': 'Barbarity', 'hope': 'Hope'
 }
 
+# ==========================================
+# 🛠️ HELPER FUNCTIONS
+# ==========================================
 def fmt_int(n):
     try:
         return f"{int(n):,}".replace(",", ".")
@@ -257,10 +225,16 @@ def find_sheet(xls, candidates):
             return s
     return None
 
+# ==========================================
+# 📦 DATA LOADERS
+# ==========================================
 @st.cache_data
 def load_thesis_data_v4():
     try:
         csv_path = os.path.join(BASE_DIR, "THESIS_STREAMLIT_SLIM.csv")
+        if not os.path.exists(csv_path):
+            return pd.DataFrame(), pd.Series(dtype="int64")
+
         df = pd.read_csv(csv_path, encoding="utf-8-sig", low_memory=False)
         df.columns = df.columns.str.lower().str.strip()
 
@@ -357,7 +331,10 @@ def load_waves_data():
 @st.cache_data
 def load_waves_cards():
     try:
-        with open(os.path.join(BASE_DIR, "streamlit_news_wave_cards.json"), 'r', encoding='utf-8') as f:
+        path = os.path.join(BASE_DIR, "streamlit_news_wave_cards.json")
+        if not os.path.exists(path):
+            return []
+        with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except Exception:
         return []
@@ -414,6 +391,9 @@ def load_emotions_data():
         st.error(f"Excel read error: {e}")
         return None
 
+# ==========================================
+# 🕸️ CO-OCCURRENCE NETWORK
+# ==========================================
 @st.cache_data
 def build_cooc_network(df, col, top_n=30, min_edge=3):
     if col not in df.columns:
@@ -478,6 +458,9 @@ def make_cooc_figure(edges_df, title="Co-occurrence Network"):
     )
     return fig
 
+# ==========================================
+# 🗺️ MAP HELPERS
+# ==========================================
 @st.cache_data
 def build_animated_map_data(df, c_src, c_dst):
     rows = []
@@ -565,6 +548,9 @@ def make_animated_map(flow_df, c_src, c_dst, ui):
     )
     return fig
 
+# ==========================================
+# 📊 RADAR HELPER (DYNAMIC CALCULATION)
+# ==========================================
 @st.cache_data
 def build_node_emotions(df):
     required = ['news_origin_norm', 'emotion_fear', 'emotion_pity', 'emotion_heroism', 'emotion_barbarity', 'emotion_hope']
@@ -583,21 +569,27 @@ def build_node_emotions(df):
         Barbarity=('emotion_barbarity', 'mean'),
         Hope=('emotion_hope', 'mean')
     ).reset_index().rename(columns={'news_origin_norm': 'Node'})
+    # Κρατάμε μόνο κόμβους με τουλάχιστον 20 εγγραφές για να έχουν νόημα τα στατιστικά
     agg = agg[agg['records'] >= 20].copy()
     for c in EMOTION_ORDER:
         agg[c] = agg[c].round(3)
     return agg.sort_values('records', ascending=False)
 
+
+# ==========================================
+# 🚀 INITIALIZE DATA & SIDEBAR
+# ==========================================
 df_main, raw_relevance = load_thesis_data_v4()
 raw_relevance_full = load_relevance_counts()
 if not raw_relevance_full.empty:
     raw_relevance = raw_relevance_full
+
 df_waves = load_waves_data()
 wave_cards = load_waves_cards()
 dict_emotions = load_emotions_data()
 
 if df_main.empty:
-    st.error("Δεν βρέθηκε το THESIS_STREAMLIT_SLIM.csv.")
+    st.error("Δεν βρέθηκε το THESIS_STREAMLIT_SLIM.csv. Βεβαιωθείτε ότι υπάρχει στον ίδιο φάκελο με το app.py.")
     st.stop()
 
 st.sidebar.header("🌐 Language / Γλώσσα")
@@ -623,18 +615,23 @@ st.sidebar.markdown(f"**Περίοδος:** {sel_years[0]}–{sel_years[1]}")
 st.title(ui['nav_title'])
 st.divider()
 
+# ==========================================
+# 📑 TABS
+# ==========================================
 tabs = st.tabs([
     ui['tab_overview'], ui['tab_press'], ui['tab_topics'], ui['tab_flows'], ui['tab_entities'],
     ui['tab_cooc'], ui['tab_waves'], ui['tab_wavemap'], ui['tab_emotions'], ui['tab_geo_emo'],
 ])
 t1, t2, t3, t4, t5, t6, t7, t8, t9, t10 = tabs
 
+# === TAB 1: OVERVIEW ===
 with t1:
     st.markdown(ui['ov_sub'])
     total_corpus = int(raw_relevance.sum()) if raw_relevance is not None and not raw_relevance.empty else len(df_main)
     directly_relevant_total = get_relevance_metric(raw_relevance, "directly_relevant")
     active_dashboard_total = len(df_filt)
     num_papers = df_filt['newspaper_title'].nunique() if 'newspaper_title' in df_filt.columns else 0
+    
     c_m1, c_m2, c_m3, c_m4 = st.columns(4)
     c_m1.metric(ui['metric_total_corpus'], fmt_int(total_corpus))
     c_m2.metric(ui['metric_directly_relevant'], fmt_int(directly_relevant_total))
@@ -652,6 +649,7 @@ with t1:
             fig_p.update_traces(textposition='inside', textinfo='percent+label')
             fig_p.update_layout(showlegend=True, margin=dict(t=10, b=10, l=10, r=10), height=320)
             st.plotly_chart(fig_p, use_container_width=True)
+            
     with c_pie2:
         st.markdown(f"**{ui['ov_country']}**")
         if 'country' in df_filt.columns:
@@ -661,6 +659,7 @@ with t1:
                            color='Country', color_discrete_map={'GB': '#1f77b4', 'FR': '#d62728'})
             fig_c.update_layout(showlegend=False, margin=dict(t=10,b=10,l=10,r=10), height=300)
             st.plotly_chart(fig_c, use_container_width=True)
+            
     with c_bar:
         st.markdown(f"**{ui['ov_top_topics']}**")
         if 'ai_topic' in df_filt.columns:
@@ -671,6 +670,7 @@ with t1:
                 fig_t = px.bar(df_top, x='Count', y='Topic', orientation='h', color_discrete_sequence=['#9b59b6'])
                 fig_t.update_layout(yaxis={'categoryorder': 'total ascending'}, margin=dict(t=10,b=10,l=10,r=10), height=300)
                 st.plotly_chart(fig_t, use_container_width=True)
+                
     st.divider()
     st.markdown(f"**{ui['ov_timeline']}**")
     df_v = df_filt.groupby(['year_val', 'country']).size().reset_index(name='count')
@@ -679,6 +679,7 @@ with t1:
     fig_v.update_layout(height=400)
     st.plotly_chart(fig_v, use_container_width=True)
 
+# === TAB 2: PRESS ===
 with t2:
     st.subheader(ui['press_sub'])
     if {'newspaper_title', 'ai_stance'}.issubset(df_filt.columns):
@@ -688,6 +689,7 @@ with t2:
         fig_np = px.bar(df_np, x='count', y='newspaper_title', color='ai_stance', orientation='h', height=600)
         st.plotly_chart(fig_np, use_container_width=True)
 
+# === TAB 3: TOPICS ===
 with t3:
     st.subheader(ui['topics_sub'])
     if 'ai_topic' in df_filt.columns:
@@ -697,14 +699,17 @@ with t3:
         if not df_t.empty:
             st.plotly_chart(px.area(df_t, x='year_val', y='count', color='ai_topic', height=500), use_container_width=True)
 
+# === TAB 4: FLOWS (STATIC MAP) ===
 with t4:
     st.subheader(ui['flows_sub'])
     c_src = 'news_origin_norm' if 'news_origin_norm' in df_filt.columns else None
     c_dst = 'publication_place' if 'publication_place' in df_filt.columns else None
+    
     if c_src and c_dst:
         f_df = df_filt.dropna(subset=[c_src, c_dst])
         f_df = f_df[(~f_df[c_src].astype(str).str.lower().str.strip().isin(BAD_VALUES)) &
                     (~f_df[c_dst].astype(str).str.lower().str.strip().isin(BAD_VALUES))]
+                    
         if not f_df.empty:
             st.markdown("**1. Sankey Flow**")
             f_grp = f_df.groupby([c_src, c_dst]).size().reset_index(name='c').sort_values('c', ascending=False).head(40)
@@ -719,6 +724,7 @@ with t4:
             st.markdown(f"**2. {ui['map_title']}**")
             map_data = f_df.groupby([c_src, c_dst]).size().reset_index(name='weight')
             uk_lon, uk_lat, fr_lon, fr_lat, nodes_to_plot = [], [], [], [], set()
+            
             for _, row in map_data.iterrows():
                 src, dst = str(row[c_src]).strip(), str(row[c_dst]).strip()
                 if src in CITY_COORDS and dst in CITY_COORDS:
@@ -728,6 +734,7 @@ with t4:
                         fr_lon.extend([s_lon, d_lon, None]); fr_lat.extend([s_lat, d_lat, None])
                     else:
                         uk_lon.extend([s_lon, d_lon, None]); uk_lat.extend([s_lat, d_lat, None])
+                        
             fig_map = go.Figure()
             if fr_lon:
                 fig_map.add_trace(go.Scattergeo(lon=fr_lon, lat=fr_lat, mode='lines', line=dict(width=1.5, color='#ff4d4d'), opacity=0.5, name=ui['map_legend_fr'], hoverinfo='skip'))
@@ -738,18 +745,23 @@ with t4:
                 fig_map.add_trace(go.Scattergeo(lon=[CITY_COORDS[c][1] for c in nodes_sorted], lat=[CITY_COORDS[c][0] for c in nodes_sorted],
                                                 mode='markers+text', marker=dict(size=7, color='white', symbol='circle', line=dict(width=1, color='black')),
                                                 text=nodes_sorted, textfont=dict(color='white'), textposition="top center", hoverinfo='text', name=ui['map_nodes']))
-            fig_map.update_layout(title_text=ui['map_title'], title_font=dict(color='white'), showlegend=True,
-                                  legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
-                                  geo=dict(scope='world', showland=True, landcolor='rgb(35,35,35)', showocean=True, oceancolor='rgb(15,15,15)',
-                                           showcountries=True, countrycolor='rgb(70,70,70)', showcoastlines=True, coastlinecolor='rgb(70,70,70)',
-                                           bgcolor='rgba(0,0,0,0)'),
-                                  paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=650, margin=dict(l=0,r=0,t=40,b=0))
+            
+            fig_map.update_layout(
+                title_text=ui['map_title'], title_font=dict(color='white'), showlegend=True,
+                legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
+                geo=dict(scope='world', showland=True, landcolor='rgb(35,35,35)', showocean=True, oceancolor='rgb(15,15,15)',
+                         showcountries=True, countrycolor='rgb(70,70,70)', showcoastlines=True, coastlinecolor='rgb(70,70,70)',
+                         bgcolor='rgba(0,0,0,0)'),
+                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=650, margin=dict(l=0,r=0,t=40,b=0)
+            )
+            # Ενεργοποίηση Zoom Control
             st.plotly_chart(fig_map, use_container_width=True, config={'scrollZoom': True, 'displayModeBar': True})
         else:
             st.warning("No flow data after filtering unknown values.")
     else:
         st.warning("Columns news_origin_norm / publication_place not found.")
 
+# === TAB 5: ENTITIES ===
 with t5:
     st.subheader(ui['ent_sub'])
     col_a, col_b = st.columns(2)
@@ -763,15 +775,20 @@ with t5:
                 fig.update_layout(title=title, yaxis={'categoryorder': 'total ascending'})
                 return fig
         return None
+        
     chart_p = make_ner_chart('entities_persons', "#1f77b4", ui['ent_top_p'])
     chart_l = make_ner_chart('entities_locations', "#ff7f0e", ui['ent_top_l'])
+    
     if chart_p: col_a.plotly_chart(chart_p, use_container_width=True)
     if chart_l: col_b.plotly_chart(chart_l, use_container_width=True)
+    
     st.download_button("📥 Export filtered CSV", df_filt.to_csv(index=False).encode('utf-8'), "filtered_corpus.csv", "text/csv")
 
+# === TAB 6: CO-OCCURRENCE NETWORK ===
 with t6:
     st.subheader(ui['cooc_sub'])
     st.info(ui['cooc_note'])
+    
     cooc_col1, cooc_col2, cooc_col3 = st.columns(3)
     with cooc_col1:
         cooc_type = st.selectbox(ui['cooc_type'], ["Persons", "Locations"], format_func=lambda x: ui['ent_top_p'] if x == "Persons" else ui['ent_top_l'])
@@ -779,22 +796,28 @@ with t6:
         cooc_top_n = st.slider(ui['cooc_top_n'], 10, 60, 25, 5)
     with cooc_col3:
         cooc_min_edge = st.slider(ui['cooc_min_edge'], 1, 20, 3)
+        
     cooc_col_name = 'entities_persons' if cooc_type == "Persons" else 'entities_locations'
+    
     with st.spinner("Building network..."):
         edges_df = build_cooc_network(df_filt, cooc_col_name, top_n=cooc_top_n, min_edge=cooc_min_edge)
+        
     if edges_df.empty:
         st.warning("No co-occurrence data found. Try lowering the minimum edge filter or selecting more data.")
     else:
         fig_cooc = make_cooc_figure(edges_df, title=f"Co-occurrence: {cooc_type} (top {cooc_top_n}, min edges={cooc_min_edge})")
         if fig_cooc:
             st.plotly_chart(fig_cooc, use_container_width=True)
+            
         st.markdown("**Top Co-occurring Pairs**")
         st.dataframe(edges_df.head(30).rename(columns={'source': 'Entity A', 'target': 'Entity B', 'weight': 'Co-occurrences'}),
                      use_container_width=True, hide_index=True)
 
+# === TAB 7: NEWS WAVES ===
 with t7:
     st.subheader(ui['waves_sub'])
     st.info(ui['waves_note'])
+    
     if df_waves.empty or not wave_cards:
         st.error("⚠️ Missing 'news_wave_streamlit_slim.csv' or 'streamlit_news_wave_cards.json'.")
     else:
@@ -802,25 +825,31 @@ with t7:
         sel_event_type = st.selectbox("Filter by event type:", ["All"] + all_event_types)
         filtered_cards = wave_cards if sel_event_type == "All" else [c for c in wave_cards if c.get('dominant_event_type') == sel_event_type]
         event_options = [c.get('canonical_event_label', 'Unknown') for c in filtered_cards]
+        
         if not event_options:
             st.warning("No events match this filter.")
         else:
             selected_event = st.selectbox(ui['waves_select'], event_options)
             card_data = next((c for c in filtered_cards if c.get('canonical_event_label') == selected_event), None)
+            
             if card_data:
                 cluster_id = card_data.get('canonical_story_cluster_id', '')
                 summary_text = card_data.get(f"dashboard_card_{lang_choice.lower()}", card_data.get('dashboard_card_en', '—'))
                 st.info(f"**AI Summary:** {summary_text}")
+                
                 c1, c2, c3, c4 = st.columns(4)
                 c1.metric("Volume", card_data.get('count', 0))
                 c2.metric("Dom. Frame", card_data.get('dominant_frame', '—'))
                 c3.metric("Event Type", card_data.get('dominant_event_type', '—'))
                 c4.metric("Medium", card_data.get('dominant_transmission_medium', '—'))
+                
                 st.markdown(f"**Certainty profile:** {card_data.get('certainty_profile', '—')}")
                 st.markdown(f"**Transmission profile:** {card_data.get('transmission_profile', '—')}")
                 st.divider()
+                
                 id_col = "canonical_story_cluster_id" if "canonical_story_cluster_id" in df_waves.columns else "story_cluster_id" if "story_cluster_id" in df_waves.columns else None
                 df_w = df_waves[df_waves[id_col].astype(str) == str(cluster_id)].copy() if id_col else pd.DataFrame()
+                
                 def simple_bar(dataframe, column, title, color):
                     if column in dataframe.columns and not dataframe.empty:
                         temp = dataframe[column].fillna("Unknown").astype(str).str.strip().replace({"": "Unknown", "nan": "Unknown", "None": "Unknown"})
@@ -830,6 +859,7 @@ with t7:
                         fig.update_layout(yaxis={'categoryorder': 'total ascending'}, height=350, margin=dict(t=50,b=20,l=10,r=10))
                         return fig
                     return None
+                    
                 col_w1, col_w2 = st.columns(2)
                 with col_w1:
                     fig_r = simple_bar(df_w, "rumor_status", ui['waves_rumor'], "#3498db")
@@ -837,6 +867,7 @@ with t7:
                 with col_w2:
                     fig_m = simple_bar(df_w, "transmission_medium", ui['waves_medium'], "#2ecc71")
                     if fig_m: st.plotly_chart(fig_m, use_container_width=True)
+                    
                 col_w3, col_w4 = st.columns(2)
                 with col_w3:
                     fig_f = simple_bar(df_w, "rhetorical_frame_primary", ui['waves_frame'], "#9b59b6")
@@ -844,52 +875,66 @@ with t7:
                 with col_w4:
                     fig_t2 = simple_bar(df_w, "canonical_event_type", ui['waves_type'], "#e67e22")
                     if fig_t2: st.plotly_chart(fig_t2, use_container_width=True)
+                    
                 st.divider()
                 st.markdown(f"### {ui['waves_sample']} ({selected_event})")
                 show_cols = ["newspaper_title", "date", "country", "publication_place", "news_origin_norm", "rumor_status", "transmission_medium", "rhetorical_frame_primary", "canonical_event_type"]
                 show_cols = [c for c in show_cols if c in df_w.columns]
+                
                 if show_cols:
                     st.dataframe(df_w[show_cols].head(100), use_container_width=True, hide_index=True)
+                    
                 st.download_button("📥 Export wave CSV", df_w.to_csv(index=False).encode('utf-8'),
                                    f"wave_{re.sub(r'[^A-Za-z0-9_]+', '_', selected_event)}.csv", "text/csv")
 
+# === TAB 8: WAVEMAP (ANIMATED MAP) ===
 with t8:
     st.subheader(ui['wavemap_sub'])
     st.info(ui['wavemap_note'])
+    
     c_src_anim = 'news_origin_norm' if 'news_origin_norm' in df_filt.columns else None
     c_dst_anim = 'publication_place' if 'publication_place' in df_filt.columns else None
+    
     if not c_src_anim or not c_dst_anim:
         st.error("Columns news_origin_norm / publication_place not found.")
     else:
         with st.spinner("Building animated map..."):
             flow_df = build_animated_map_data(df_filt, c_src_anim, c_dst_anim)
+            
         if flow_df.empty:
             st.warning("No flow data with known coordinates found.")
         else:
             fig_anim = make_animated_map(flow_df, c_src_anim, c_dst_anim, ui)
+            # Ενεργοποίηση Zoom Control
             st.plotly_chart(fig_anim, use_container_width=True, config={'scrollZoom': True, 'displayModeBar': True})
+            
             st.divider()
             st.markdown("**Ετήσιος Όγκος Ροών (τεκμηριωμένες διαδρομές)**")
             year_summary = flow_df.groupby('year')['weight'].sum().reset_index().rename(columns={'year': 'Έτος', 'weight': 'Εγγραφές'})
             st.bar_chart(year_summary.set_index('Έτος'))
 
+# === TAB 9: EMOTIONS ===
 with t9:
     st.subheader(ui['emo_sub'])
     st.info(ui['emo_note'])
+    
     if not dict_emotions:
         st.warning("⚠️ EMOTION_ANALYSIS_SUMMARY.xlsx not found or sheets could not be read.")
     else:
         st.markdown(f"**1. {ui['emo_overall']}**")
         df_ov = dict_emotions.get('overall', pd.DataFrame()).copy()
+        
         if not df_ov.empty and {'emotion', 'mean'}.issubset(df_ov.columns):
             fig_ov = px.bar(df_ov, x='mean', y='emotion', color='emotion', orientation='h', color_discrete_sequence=px.colors.qualitative.Pastel)
             fig_ov.update_layout(yaxis={'categoryorder': 'total ascending'}, height=400, showlegend=False)
             st.plotly_chart(fig_ov, use_container_width=True)
         else:
             st.warning("Overall emotion sheet not found in expected format.")
+            
         st.divider()
         st.markdown(f"**2. {ui['emo_timeline']}**")
         df_y = dict_emotions.get('by_year', pd.DataFrame()).copy()
+        
         if not df_y.empty and 'year_val' in df_y.columns:
             available_emo_cols = [c for c in EMOTION_ORDER if c in df_y.columns]
             if available_emo_cols:
@@ -897,9 +942,11 @@ with t9:
                 fig_y = px.line(df_y_melt, x='year_val', y='Score', color='Emotion', markers=True, color_discrete_sequence=px.colors.qualitative.Set1)
                 fig_y.update_layout(height=450, xaxis_title="Έτος", yaxis_title="Ένταση (1–10)")
                 st.plotly_chart(fig_y, use_container_width=True)
+                
         st.divider()
         st.markdown(f"**3. {ui['emo_country']}**")
         df_yc = dict_emotions.get('by_year_country', pd.DataFrame()).copy()
+        
         if not df_yc.empty and 'country_analysis' in df_yc.columns and 'year_val' in df_yc.columns:
             available_country_emo_cols = [c for c in EMOTION_ORDER if c in df_yc.columns]
             if available_country_emo_cols:
@@ -911,15 +958,20 @@ with t9:
         else:
             st.warning("Emotion-by-year-country data not found.")
 
+# === TAB 10: EMOTIONAL GEOGRAPHY (DYNAMIC RADAR) ===
 with t10:
     st.subheader(ui['geo_emo_sub'])
     st.info(ui['geo_emo_note'])
+    
+    # Η δυναμική ανάγνωση από το corpus!
     node_emotions = build_node_emotions(df_filt)
+    
     if node_emotions.empty:
         st.warning("No node-level emotion data found. Check news_origin_norm and emotion columns.")
     else:
         st.markdown("**Top emotional news-origin nodes**")
         st.dataframe(node_emotions.head(30), use_container_width=True, hide_index=True)
+        
         nodes_available = node_emotions['Node'].tolist()
         if len(nodes_available) >= 2:
             col1, col2 = st.columns(2)
@@ -927,16 +979,26 @@ with t10:
                 node1 = st.selectbox("1ος Κόμβος:", nodes_available, index=0)
             with col2:
                 node2 = st.selectbox("2ος Κόμβος (Σύγκριση):", nodes_available, index=min(1, len(nodes_available)-1))
+                
             data1 = node_emotions[node_emotions['Node'] == node1].iloc[0]
             data2 = node_emotions[node_emotions['Node'] == node2].iloc[0]
+            
             fig_radar = go.Figure()
-            fig_radar.add_trace(go.Scatterpolar(r=[data1[c] for c in EMOTION_ORDER], theta=EMOTION_ORDER,
-                                                fill='toself', name=f"{node1} (n={int(data1['records'])})", line_color='#e74c3c'))
-            fig_radar.add_trace(go.Scatterpolar(r=[data2[c] for c in EMOTION_ORDER], theta=EMOTION_ORDER,
-                                                fill='toself', name=f"{node2} (n={int(data2['records'])})", line_color='#3498db'))
-            fig_radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 10], gridcolor='rgba(255,255,255,0.2)'),
-                                               bgcolor='rgba(0,0,0,0)'),
-                                    showlegend=True, title=f"Emotional profile: {node1} vs {node2}",
-                                    title_font=dict(color='white'), legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
-                                    paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=600)
+            fig_radar.add_trace(go.Scatterpolar(
+                r=[data1[c] for c in EMOTION_ORDER], theta=EMOTION_ORDER,
+                fill='toself', name=f"{node1} (n={int(data1['records'])})", line_color='#e74c3c'
+            ))
+            fig_radar.add_trace(go.Scatterpolar(
+                r=[data2[c] for c in EMOTION_ORDER], theta=EMOTION_ORDER,
+                fill='toself', name=f"{node2} (n={int(data2['records'])})", line_color='#3498db'
+            ))
+            
+            fig_radar.update_layout(
+                polar=dict(radialaxis=dict(visible=True, range=[0, 10], gridcolor='rgba(255,255,255,0.2)'),
+                           bgcolor='rgba(0,0,0,0)'),
+                showlegend=True, title=f"Emotional profile: {node1} vs {node2}",
+                title_font=dict(color='white'), legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
+                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=600
+            )
+            
             st.plotly_chart(fig_radar, use_container_width=True)
