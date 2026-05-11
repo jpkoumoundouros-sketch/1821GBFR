@@ -355,39 +355,6 @@ def load_thesis_data_v4():
     except Exception as e:
         st.error(f"Error loading main data: {e}")
         return pd.DataFrame(), pd.Series()
-        
-@st.cache_data
-def load_waves_data():
-    try:
-        return pd.read_csv(os.path.join(BASE_DIR, "news_wave_streamlit_slim.csv"), low_memory=False)
-    except:
-        return pd.DataFrame()
-
-@st.cache_data
-def load_waves_cards():
-    try:
-        with open(os.path.join(BASE_DIR, "streamlit_news_wave_cards.json"), 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except:
-        return []
-
-@st.cache_data
-def load_emotions_data():
-    file_path = os.path.join(BASE_DIR, "EMOTION_ANALYSIS_SUMMARY.xlsx")
-    if not os.path.exists(file_path):
-        return None
-    try:
-        xls = pd.ExcelFile(file_path)
-        return {
-            'overall': pd.read_excel(xls, 'emotion_means_overall'),
-            'by_year': pd.read_excel(xls, 'emotion_by_year'),
-            'by_year_country': pd.read_excel(xls, 'emotion_by_year_country'),
-            'dominant_by_year': pd.read_excel(xls, 'dominant_emotion_by_year')
-        }
-    except Exception as e:
-        st.error(f"Excel read error: {e}")
-        return None
-        
 @st.cache_data
 def load_raw_relevance_from_full_file():
     path = os.path.join(BASE_DIR, "THESIS_RECLASSIFIED_FINAL.csv.zip")
@@ -421,7 +388,44 @@ def load_raw_relevance_from_full_file():
     except Exception as e:
         st.warning(f"Could not load full relevance file: {e}")
         return pd.Series()
+        df_main, raw_relevance = load_thesis_data_v4()
 
+raw_relevance_full = load_raw_relevance_from_full_file()
+if not raw_relevance_full.empty:
+    raw_relevance = raw_relevance_full
+
+@st.cache_data
+def load_waves_data():
+    try:
+        return pd.read_csv(os.path.join(BASE_DIR, "news_wave_streamlit_slim.csv"), low_memory=False)
+    except:
+        return pd.DataFrame()
+
+@st.cache_data
+def load_waves_cards():
+    try:
+        with open(os.path.join(BASE_DIR, "streamlit_news_wave_cards.json"), 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        return []
+
+@st.cache_data
+def load_emotions_data():
+    file_path = os.path.join(BASE_DIR, "EMOTION_ANALYSIS_SUMMARY.xlsx")
+    if not os.path.exists(file_path):
+        return None
+    try:
+        xls = pd.ExcelFile(file_path)
+        return {
+            'overall': pd.read_excel(xls, 'emotion_means_overall'),
+            'by_year': pd.read_excel(xls, 'emotion_by_year'),
+            'by_year_country': pd.read_excel(xls, 'emotion_by_year_country'),
+            'dominant_by_year': pd.read_excel(xls, 'dominant_emotion_by_year')
+        }
+    except Exception as e:
+        st.error(f"Excel read error: {e}")
+        return None
+        
 # ==========================================
 # 🕸️ CO-OCCURRENCE HELPERS
 # ==========================================
