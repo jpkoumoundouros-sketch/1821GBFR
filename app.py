@@ -387,6 +387,40 @@ def load_emotions_data():
     except Exception as e:
         st.error(f"Excel read error: {e}")
         return None
+        
+@st.cache_data
+def load_raw_relevance_from_full_file():
+    path = os.path.join(BASE_DIR, "THESIS_RECLASSIFIED_FINAL.csv.zip")
+    if not os.path.exists(path):
+        return pd.Series()
+
+    try:
+        with zipfile.ZipFile(path, 'r') as z:
+            csv_files = [n for n in z.namelist() if not n.startswith('__MACOSX') and n.endswith('.csv')]
+            if not csv_files:
+                return pd.Series()
+
+            with z.open(csv_files[0]) as f:
+                content = f.read().decode('utf-8', errors='replace')
+                df_full = pd.read_csv(io.StringIO(content), sep=None, engine='python', on_bad_lines='skip')
+
+        df_full.columns = df_full.columns.str.lower().str.strip()
+
+        if "ai_relevance" not in df_full.columns:
+            return pd.Series()
+
+        return (
+            df_full["ai_relevance"]
+            .fillna("Unknown")
+            .astype(str)
+            .str.strip()
+            .replace({"": "Unknown", "nan": "Unknown", "None": "Unknown"})
+            .value_counts()
+        )
+
+    except Exception as e:
+        st.warning(f"Could not load full relevance file: {e}")
+        return pd.Series()
 
 # ==========================================
 # 🕸️ CO-OCCURRENCE HELPERS
