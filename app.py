@@ -164,6 +164,8 @@ CITY_COORDS = {
     "Patras": [38.2466, 21.7346], "Navarino": [36.9110, 21.6924], "Tripolitsa": [37.5108, 22.3768],
     "Corfu": [39.6243, 19.9217], "Zante": [37.7870, 20.8999], "Kefalonia": [38.2598, 20.5750],
     "Syros": [37.4415, 24.9425], "Hydra": [37.3496, 23.4682], "Chios": [38.3678, 26.1361],
+    "Tamil Nadu": [13.0827, 80.2707], "Maharashtra": [18.9667, 72.8333], "Barbados": [13.1939, -59.5432],
+    "Alger": [36.7538, 3.0588], "Jamaica": [18.1096, -77.2975]
 }
 FR_CITIES = {"Paris", "Bordeaux", "Strasbourg", "Toulouse", "Montpellier", "Marseille"}
 BAD_VALUES = {'unknown', 'nan', 'none', 'άγνωστο', 'άγνωστη', 'inconnu', '[]', '', 'skipped', 'skip'}
@@ -233,7 +235,7 @@ def load_thesis_data_v4():
     try:
         csv_path = os.path.join(BASE_DIR, "THESIS_STREAMLIT_SLIM.csv")
         if not os.path.exists(csv_path):
-            return pd.DataFrame(), pd.Series(dtype="int64")
+            return pd.DataFrame(), pd.Series(dtype="int64"), pd.DataFrame()
 
         df = pd.read_csv(csv_path, encoding="utf-8-sig", low_memory=False)
         df.columns = df.columns.str.lower().str.strip()
@@ -245,7 +247,7 @@ def load_thesis_data_v4():
 
         raw_relevance = df['ai_relevance'].value_counts() if 'ai_relevance' in df.columns else pd.Series(dtype="int64")
 
-        # ΚΑΘΑΡΙΣΜΟΣ ΧΩΡΑΣ & ΕΤΟΥΣ
+        # --- ΚΑΘΑΡΙΣΜΟΣ ΧΩΡΑΣ & ΕΤΟΥΣ ΠΡΙΝ ΤΟ ΦΙΛΤΡΑΡΙΣΜΑ RELEVANCE ---
         if 'country' in df.columns:
             df['country'] = df['country'].astype(str).str.strip().str.upper().replace(
                 {'UK': 'GB', 'UNITED KINGDOM': 'GB', 'FRANCE': 'FR'}
@@ -266,8 +268,11 @@ def load_thesis_data_v4():
             ).fillna(0)
 
         df = df[(df['year_val'] >= 1821) & (df['year_val'] <= 1832)].copy()
+        
+        # --- ΥΠΟΛΟΓΙΣΜΟΣ ΟΓΚΟΥ ΣΥΝΟΛΙΚΟΥ (RAW) CORPUS ΑΝΑ ΕΤΟΣ ΚΑΙ ΧΩΡΑ ---
+        raw_timeline = df.groupby(['year_val', 'country']).size().reset_index(name='count')
 
-        # ΦΙΛΤΡΑΡΙΣΜΑ RELEVANCE
+        # --- ΦΙΛΤΡΑΡΙΣΜΑ ΜΟΝΟ ΓΙΑ DIRECTLY RELEVANT ΑΡΘΡΑ ΣΤΟ ΚΥΡΙΟ DF ---
         if 'is_directly_relevant' in df.columns:
             df = df[df['is_directly_relevant'].astype(str).str.lower().isin(['true', '1', 'yes'])].copy()
         elif 'ai_relevance' in df.columns:
@@ -291,10 +296,10 @@ def load_thesis_data_v4():
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
 
-        return df, raw_relevance
+        return df, raw_relevance, raw_timeline
     except Exception as e:
         st.error(f"Error loading main data: {e}")
-        return pd.DataFrame(), pd.Series(dtype="int64")
+        return pd.DataFrame(), pd.Series(dtype="int64"), pd.DataFrame()
 
 @st.cache_data
 def load_raw_timeline():
@@ -560,6 +565,7 @@ def make_animated_map(flow_df, c_src, c_dst, ui):
     fig.update_layout(
         title=dict(text=f"{ui['wavemap_sub']} — {first_year}", font=dict(color='white', size=15)),
         showlegend=True, legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
+        # Αφαίρεση του center και των bounds για να φαίνεται ολόκληρος ο κόσμος (Ινδία, Αμερική)
         geo=dict(scope='world', projection_type='natural earth', showland=True, landcolor='rgb(35,35,35)',
                  showocean=True, oceancolor='rgb(15,15,30)', showcountries=True, countrycolor='rgb(70,70,70)',
                  showcoastlines=True, coastlinecolor='rgb(80,80,80)', showlakes=False,
@@ -611,7 +617,9 @@ def build_node_emotions(df):
 # ==========================================
 # 🚀 INITIALIZE DATA & SIDEBAR
 # ==========================================
-df_main, raw_relevance = load_thesis_data_v4()
+df_main, raw_relevance, raw_timeline = load_thesis_data_v4()
+
+# Νέα προσθήκη: Φόρτωση του RAW timeline από το πλήρες CSV
 raw_timeline = load_raw_timeline()
 
 raw_relevance_full = load_relevance_counts()
@@ -793,7 +801,7 @@ with t4:
             fig_map.update_layout(
                 title_text=ui['map_title'], title_font=dict(color='white'), showlegend=True,
                 legend=dict(font=dict(color="white"), bgcolor="rgba(0,0,0,0)"),
-                geo=dict(scope='world', showland=True, landcolor='rgb(35,35,35)', showocean=True, oceancolor='rgb(15,15,15)',
+                geo=dict(scope='world', projection_type='natural earth', showland=True, landcolor='rgb(35,35,35)', showocean=True, oceancolor='rgb(15,15,15)',
                          showcountries=True, countrycolor='rgb(70,70,70)', showcoastlines=True, coastlinecolor='rgb(70,70,70)',
                          bgcolor='rgba(0,0,0,0)'),
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=650, margin=dict(l=0,r=0,t=40,b=0)
