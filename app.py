@@ -395,6 +395,29 @@ if not raw_relevance_full.empty:
     raw_relevance = raw_relevance_full
 
 @st.cache_data
+def load_relevance_counts():
+    path = os.path.join(BASE_DIR, "relevance_counts.csv")
+    if not os.path.exists(path):
+        return pd.Series()
+
+    try:
+        rel = pd.read_csv(path, encoding="utf-8-sig")
+        rel.columns = rel.columns.str.lower().str.strip()
+
+        if "ai_relevance" in rel.columns and "count" in rel.columns:
+            return pd.Series(
+                rel["count"].values,
+                index=rel["ai_relevance"].astype(str)
+            )
+
+        return pd.Series()
+
+    except Exception as e:
+        st.warning(f"Could not load relevance_counts.csv: {e}")
+        return pd.Series()
+        df_main, raw_relevance = load_thesis_data_v4()
+        
+@st.cache_data
 def load_waves_data():
     try:
         return pd.read_csv(os.path.join(BASE_DIR, "news_wave_streamlit_slim.csv"), low_memory=False)
