@@ -316,11 +316,6 @@ def load_thesis_data_v4():
             if possible:
                 df = df.rename(columns={possible[0]: 'newspaper_title'})
 
-        raw_relevance = df['ai_relevance'].value_counts() if 'ai_relevance' in df.columns else pd.Series()
-
-        if 'ai_relevance' in df.columns:
-            df = df[df['ai_relevance'].astype(str).str.lower().str.strip() == 'directly_relevant'].copy()
-
         for col in ['ai_stance', 'ai_topic']:
             if col in df.columns:
                 df[col] = df[col].astype(str).fillna('Unknown').replace(['nan', 'unknown', 'None'], 'Unknown')
